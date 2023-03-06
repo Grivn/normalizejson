@@ -1,0 +1,20 @@
+{
+  "item1": {
+    "item2": {
+      "item1": "string_to_number",
+      "list1": [
+        {
+          "item2": "number_to_string",
+          "item3": "float_to_string"
+        }
+      ],
+      "list2": [
+        {
+          "item3": {
+            "item2": "string_to_float"
+          }
+        }
+      ]
+    }
+  }
+}

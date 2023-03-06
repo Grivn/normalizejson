@@ -7,7 +7,7 @@ import (
 )
 
 func TestJSONRawCamel2Snake(t *testing.T) {
-	dir := "camelsnake"
+	dir := "camel_snake"
 
 	input, err := readTestData(dir, "camel.json")
 	if err != nil {
