@@ -1,0 +1,18 @@
+{
+  "helloWorld": "Hello world!",
+  "list": [
+    {
+      "tryToConvert": "Let's convert!"
+    },
+    {
+      "tryToTest": "Let's test!"
+    },
+    {
+      "tryToMove": "Let's move!"
+    }
+  ],
+  "map": {
+    "alice": "I'm alice.",
+    "bob": "I'm bob."
+  }
+}
