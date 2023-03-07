@@ -1,34 +1,28 @@
 package gojson
 
 import (
-	"encoding/json"
 	"fmt"
 
 	"github.com/andeya/ameda"
 )
 
-type FormatFunc func(map[string]interface{}, string) (map[string]interface{}, error)
+type FormatFunc func(item interface{}, options ...interface{}) (interface{}, error)
 
 type JSONFormatOption struct {
 	FunctionName   string
 	FormatFunction FormatFunc
 }
 
-func JSONRawFormatData(data []byte, conf interface{}, options ...JSONFormatOption) ([]byte, error) {
-	var item interface{}
-	if err := json.Unmarshal(data, &item); err != nil {
-		return nil, fmt.Errorf("unmarshal source data failed: %s", err)
-	}
-
-	formattedItem, err := formatItem(item, conf, createFormatFactory(options...))
+func JSONRawFormatData(data []byte, rawTemplate []byte, options ...JSONFormatOption) ([]byte, error) {
+	fii, err := newFormatItemImpl(rawTemplate, options...)
 	if err != nil {
 		return nil, fmt.Errorf("format JSON data failed: %s", err)
 	}
-	return json.Marshal(formattedItem)
+	return fii.formatJSONData(data)
 }
 
-func DefaultJSONRawFormatData(data []byte, conf interface{}) ([]byte, error) {
-	return JSONRawFormatData(data, conf, DefaultOptions...)
+func DefaultJSONRawFormatData(data []byte, rawTemplate []byte) ([]byte, error) {
+	return JSONRawFormatData(data, rawTemplate, DefaultOptions...)
 }
 
 func createFormatFactory(options ...JSONFormatOption) map[string]FormatFunc {
@@ -66,80 +60,52 @@ const (
 	FormatStringToFloat  = "string_to_float"
 )
 
-func NumberToString(jsonMap map[string]interface{}, key string) (map[string]interface{}, error) {
-	rawID, ok := jsonMap[key]
-	if !ok {
-		// cannot find 'id' in panel's json map.
-		return jsonMap, nil
-	}
-
-	float64ID, ok := rawID.(float64)
+func NumberToString(item interface{}, options ...interface{}) (interface{}, error) {
+	float64ID, ok := item.(float64)
 	if ok {
 		int64ID, err := ameda.Float64ToInt64(float64ID)
 		if err != nil {
-			return jsonMap, err
+			return item, err
 		}
-		jsonMap[key] = ameda.Int64ToString(int64ID)
-		return jsonMap, nil
+		return ameda.Int64ToString(int64ID), nil
 	}
-
-	return jsonMap, nil
+	return item, nil
 }
 
-func FloatToString(jsonMap map[string]interface{}, key string) (map[string]interface{}, error) {
-	rawID, ok := jsonMap[key]
-	if !ok {
-		// cannot find 'id' in panel's json map.
-		return jsonMap, nil
-	}
-
-	float64ID, ok := rawID.(float64)
+func FloatToString(item interface{}, options ...interface{}) (interface{}, error) {
+	float64ID, ok := item.(float64)
 	if ok {
-		jsonMap[key] = ameda.Float64ToString(float64ID)
-		return jsonMap, nil
+		return ameda.Float64ToString(float64ID), nil
 	}
-
-	return jsonMap, nil
+	return item, nil
 }
 
-func StringToNumber(jsonMap map[string]interface{}, key string) (map[string]interface{}, error) {
-	raw, ok := jsonMap[key]
+func StringToNumber(item interface{}, options ...interface{}) (interface{}, error) {
+	str, ok := item.(string)
 	if !ok {
-		return jsonMap, nil
-	}
-	str, ok := raw.(string)
-	if !ok {
-		return jsonMap, nil
+		return item, nil
 	}
 	if str == "" {
-		jsonMap[key] = 0
-		return jsonMap, nil
+		return 0, nil
 	}
 	intValue, err := ameda.StringToInt64(str)
 	if err != nil {
-		return jsonMap, err
+		return item, err
 	}
-	jsonMap[key] = intValue
-	return jsonMap, nil
+	return intValue, nil
 }
 
-func StringToFloat(jsonMap map[string]interface{}, key string) (map[string]interface{}, error) {
-	raw, ok := jsonMap[key]
+func StringToFloat(item interface{}, options ...interface{}) (interface{}, error) {
+	str, ok := item.(string)
 	if !ok {
-		return jsonMap, nil
-	}
-	str, ok := raw.(string)
-	if !ok {
-		return jsonMap, nil
+		return item, nil
 	}
 	if str == "" {
-		jsonMap[key] = float64(0)
-		return jsonMap, nil
+		return float64(0), nil
 	}
 	floatValue, err := ameda.StringToFloat64(str)
 	if err != nil {
-		return jsonMap, err
+		return item, err
 	}
-	jsonMap[key] = floatValue
-	return jsonMap, nil
+	return floatValue, nil
 }

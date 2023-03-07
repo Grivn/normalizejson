@@ -23,7 +23,7 @@ func TestJSONRawCamel2Snake(t *testing.T) {
 }
 
 func TestJSONRawSnake2Camel(t *testing.T) {
-	dir := "camelsnake"
+	dir := "camel_snake"
 
 	input, err := readTestData(dir, "snake.json")
 	if err != nil {
