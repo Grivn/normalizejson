@@ -1,27 +1,44 @@
 package gojson
 
-type FormatJSONProvider interface {
-	AddFormatOption(options ...JSONFormatOption)
-	FormatJSONData(data []byte) ([]byte, error)
+type FormatDataProvider interface {
+	AddOptions(options ...FormatDataOption)
 	UpdateTemplate(rawTemplate []byte) error
+	FormatJSONSchema(data []byte) ([]byte, error)
 }
 
-func NewFormatJSONProvider(rawTemplate []byte, options ...JSONFormatOption) (FormatJSONProvider, error) {
+type FormatKeyProvider interface {
+	AddOptions(options ...FormatKeyOption)
+	FormatJSONSchema(data []byte) []byte
+}
+
+func NewFormatDataProvider(rawTemplate []byte, options ...FormatDataOption) (FormatDataProvider, error) {
 	return newFormatItemImpl(rawTemplate, options...)
 }
 
-func NewDefaultFormatJSONProvider(rawTemplate []byte) (FormatJSONProvider, error) {
-	return NewFormatJSONProvider(rawTemplate, DefaultOptions...)
+func NewDefaultFormatDataProvider(rawTemplate []byte) (FormatDataProvider, error) {
+	return NewFormatDataProvider(rawTemplate, DefaultOptions...)
 }
 
-func (fii *formatItemsImpl) AddFormatOption(options ...JSONFormatOption) {
-	fii.addFormatOption(options...)
+func (fii *formatItemsImpl) AddOptions(options ...FormatDataOption) {
+	fii.addOptions(options...)
 }
 
 func (fii *formatItemsImpl) UpdateTemplate(rawTemplate []byte) error {
 	return fii.updateTemplate(rawTemplate)
 }
 
-func (fii *formatItemsImpl) FormatJSONData(data []byte) ([]byte, error) {
-	return fii.formatJSONData(data)
+func (fii *formatItemsImpl) FormatJSONSchema(data []byte) ([]byte, error) {
+	return fii.formatJSONSchema(data)
+}
+
+func NewFormatKeyProvider(options ...FormatKeyOption) FormatKeyProvider {
+	return newFormatKeyImpl(options...)
+}
+
+func (fki *formatKeyImpl) AddOptions(options ...FormatKeyOption) {
+	fki.addOptions(options...)
+}
+
+func (fki *formatKeyImpl) FormatJSONSchema(data []byte) []byte {
+	return fki.formatJSONSchema(data)
 }

@@ -15,11 +15,9 @@ type formatItemsImpl struct {
 	templateMap map[string]interface{}
 }
 
-func newFormatItemImpl(rawTemplate []byte, options ...JSONFormatOption) (*formatItemsImpl, error) {
-	fii := &formatItemsImpl{
-		functionMap: createFormatFactory(options...),
-		templateMap: make(map[string]interface{}),
-	}
+func newFormatItemImpl(rawTemplate []byte, options ...FormatDataOption) (*formatItemsImpl, error) {
+	fii := &formatItemsImpl{templateMap: make(map[string]interface{})}
+	fii.addOptions(options...)
 
 	if len(rawTemplate) == 0 {
 		return fii, nil
@@ -40,7 +38,7 @@ func (fii *formatItemsImpl) updateTemplate(rawTemplate []byte) error {
 	return nil
 }
 
-func (fii *formatItemsImpl) addFormatOption(options ...JSONFormatOption) {
+func (fii *formatItemsImpl) addOptions(options ...FormatDataOption) {
 	if fii.functionMap == nil {
 		fii.functionMap = make(map[string]FormatFunc)
 	}
@@ -50,7 +48,7 @@ func (fii *formatItemsImpl) addFormatOption(options ...JSONFormatOption) {
 	}
 }
 
-func (fii *formatItemsImpl) formatJSONData(data []byte) ([]byte, error) {
+func (fii *formatItemsImpl) formatJSONSchema(data []byte) ([]byte, error) {
 	if len(fii.functionMap) == 0 {
 		return data, nil
 	}

@@ -6,35 +6,27 @@ import (
 	"github.com/andeya/ameda"
 )
 
-type FormatFunc func(item interface{}) (interface{}, error)
-
-type JSONFormatOption struct {
-	FunctionName   string
-	FormatFunction FormatFunc
-}
-
-func JSONRawFormatData(data []byte, rawTemplate []byte, options ...JSONFormatOption) ([]byte, error) {
+func JSONSchemaFormatData(data []byte, rawTemplate []byte, options ...FormatDataOption) ([]byte, error) {
 	fii, err := newFormatItemImpl(rawTemplate, options...)
 	if err != nil {
 		return nil, fmt.Errorf("format JSON data failed: %s", err)
 	}
-	return fii.formatJSONData(data)
+	return fii.formatJSONSchema(data)
 }
 
-func DefaultJSONRawFormatData(data []byte, rawTemplate []byte) ([]byte, error) {
-	return JSONRawFormatData(data, rawTemplate, DefaultOptions...)
+func DefaultJSONSchemaFormatData(data []byte, rawTemplate []byte) ([]byte, error) {
+	return JSONSchemaFormatData(data, rawTemplate, DefaultOptions...)
 }
 
-func createFormatFactory(options ...JSONFormatOption) map[string]FormatFunc {
-	factory := make(map[string]FormatFunc)
-	for _, option := range options {
-		factory[option.FunctionName] = option.FormatFunction
-	}
-	return factory
+type FormatFunc func(item interface{}) (interface{}, error)
+
+type FormatDataOption struct {
+	FunctionName   string
+	FormatFunction FormatFunc
 }
 
 // DefaultOptions creates default options to format JSON raw data.
-var DefaultOptions = []JSONFormatOption{
+var DefaultOptions = []FormatDataOption{
 	{
 		FunctionName:   FormatNumberToString,
 		FormatFunction: FormatDataNumberToString,

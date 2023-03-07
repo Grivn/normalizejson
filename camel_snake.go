@@ -8,11 +8,11 @@ import (
 	"github.com/Grivn/gojson/regex"
 )
 
-func JSONRawCamel2Snake(data []byte) []byte {
+func JSONSchemaCamel2Snake(data []byte) []byte {
 	return regex.JSONKey.ReplaceAllFunc(data, convertBytesCamel2Snake)
 }
 
-func JSONRawSnake2Camel(data []byte) []byte {
+func JSONSchemaSnake2Camel(data []byte) []byte {
 	return regex.JSONKey.ReplaceAllFunc(data, convertBytesSnake2Camel)
 }
 

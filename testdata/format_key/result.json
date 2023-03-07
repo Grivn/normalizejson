@@ -1,0 +1,32 @@
+{
+  "data": {
+    "description": 1024,
+    "id": "2",
+    "rate": "2.3",
+    "sub_data_list": [
+      {
+        "result_item1": 12,
+        "result_item2": "1.30",
+        "sub_data_list": [
+          {
+            "result_item1": "3",
+            "result_item2": "1.70",
+            "result_item3": "2",
+            "result_item4": 1.2,
+            "result_item5": "exist",
+            "type": "child"
+          }
+        ],
+        "type": "parent"
+      },
+      {
+        "result_item1": "2",
+        "result_item2": "1.40",
+        "result_item3": "3",
+        "result_item4": "1.2000",
+        "result_item5": "",
+        "type": "child"
+      }
+    ]
+  }
+}
