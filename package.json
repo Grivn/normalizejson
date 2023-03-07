@@ -1,7 +1,7 @@
 {
   "name": "gojson",
   "version": "1.0.0",
-  "description": "Tools for golang to process JSON raw data.",
+  "description": "Toolkits for golang to process JSON schema.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
