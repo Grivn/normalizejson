@@ -1,12 +1,36 @@
 package gojson
 
 import (
+	"encoding/json"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
+type Schema struct {
+	Data Data `json:"data"`
+}
+
+type Data struct {
+	ID          string      `json:"id"`
+	Description string      `json:"description"`
+	Rate        float64     `json:"rate"`
+	SubDataList SubDataList `json:"sub_data_list"`
+}
+
+type SubDataList []SubData
+type SubData struct {
+	Type        string      `json:"type"`
+	Item1       int         `json:"item1"`
+	Item2       string      `json:"item2"`
+	Item3       string      `json:"item3,omitempty"`
+	Item4       float64     `json:"item4,omitempty"`
+	Item5       string      `json:"item5,omitempty"`
+	SubDataList SubDataList `json:"sub_data_list,omitempty"`
+}
+
 func TestFormatData(t *testing.T) {
+	s := Schema{}
 	dir := "format_data"
 	template, err := readTestData(dir, "config.json")
 	if err != nil {
@@ -29,6 +53,9 @@ func TestFormatData(t *testing.T) {
 	}
 
 	assert.Equal(t, formatJSON(result), formatJSON(formatted))
+
+	assert.NotNil(t, json.Unmarshal(source, &s))
+	assert.Nil(t, json.Unmarshal(formatted, &s))
 }
 
 func TestFormatDataProviderAndUpdateTemplate(t *testing.T) {

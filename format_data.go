@@ -25,7 +25,7 @@ type FormatDataOption struct {
 	FormatFunction FormatFunc
 }
 
-// DefaultOptions creates default options to format JSON raw data.
+// DefaultOptions creates default options to format JSON schema.
 var DefaultOptions = []FormatDataOption{
 	{
 		FunctionName:   FormatNumberToString,
