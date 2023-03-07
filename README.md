@@ -102,6 +102,8 @@ And the components in JSON might be nested, such as `sub_data_list` in `sub_data
 So that, we need to create template and create `FormatDataProvider` with options for `FormatFunc`.
 
 The example template is as following.
+The values `number_to_string/float_to_string/string_to_number/string_to_float` refer to the names of `format_function` created by options.
+The values `__template.id/__template.sub_data_list/__template.sub_data` refer to the structure of current JSON schema. 
 
 ```json
 {
