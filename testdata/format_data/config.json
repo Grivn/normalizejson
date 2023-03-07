@@ -10,7 +10,6 @@
     "item1": "string_to_number",
     "item3": "float_to_string",
     "item4": "string_to_float",
-    "item5": "nil_string_to_blank",
     "sub_data_list": "__template.sub_data_list"
   },
   "sub_data_list": [

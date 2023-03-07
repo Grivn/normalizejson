@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	templatePrefix = "__template."
+	formatDataTemplatePrefix = "__template."
 )
 
 type formatItemsImpl struct {
@@ -16,14 +16,17 @@ type formatItemsImpl struct {
 }
 
 func newFormatItemImpl(rawTemplate []byte, options ...JSONFormatOption) (*formatItemsImpl, error) {
-	templateMap := make(map[string]interface{})
-	if err := json.Unmarshal(rawTemplate, &templateMap); err != nil {
-		return nil, err
-	}
-
 	fii := &formatItemsImpl{
 		functionMap: createFormatFactory(options...),
-		templateMap: templateMap,
+		templateMap: make(map[string]interface{}),
+	}
+
+	if len(rawTemplate) == 0 {
+		return fii, nil
+	}
+
+	if err := fii.updateTemplate(rawTemplate); err != nil {
+		return nil, err
 	}
 	return fii, nil
 }
@@ -48,6 +51,10 @@ func (fii *formatItemsImpl) addFormatOption(options ...JSONFormatOption) {
 }
 
 func (fii *formatItemsImpl) formatJSONData(data []byte) ([]byte, error) {
+	if len(fii.functionMap) == 0 {
+		return data, nil
+	}
+
 	var item interface{}
 	if err := json.Unmarshal(data, &item); err != nil {
 		return nil, fmt.Errorf("unmarshal source data failed: %s", err)
@@ -162,7 +169,7 @@ func (fii *formatItemsImpl) formatItemMapByTemplate(itemMap map[string]interface
 }
 
 func (fii *formatItemsImpl) takeTemplate(item interface{}, expr string) (interface{}, error) {
-	templateKey := strings.TrimPrefix(expr, templatePrefix)
+	templateKey := strings.TrimPrefix(expr, formatDataTemplatePrefix)
 	template, ok := fii.templateMap[templateKey]
 	if !ok {
 		return item, nil
@@ -171,5 +178,5 @@ func (fii *formatItemsImpl) takeTemplate(item interface{}, expr string) (interfa
 }
 
 func needTemplate(function string) bool {
-	return strings.HasPrefix(function, templatePrefix)
+	return strings.HasPrefix(function, formatDataTemplatePrefix)
 }

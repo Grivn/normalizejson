@@ -6,7 +6,7 @@ import (
 	"github.com/andeya/ameda"
 )
 
-type FormatFunc func(item interface{}, options ...interface{}) (interface{}, error)
+type FormatFunc func(item interface{}) (interface{}, error)
 
 type JSONFormatOption struct {
 	FunctionName   string
@@ -37,19 +37,19 @@ func createFormatFactory(options ...JSONFormatOption) map[string]FormatFunc {
 var DefaultOptions = []JSONFormatOption{
 	{
 		FunctionName:   FormatNumberToString,
-		FormatFunction: NumberToString,
+		FormatFunction: FormatDataNumberToString,
 	},
 	{
 		FunctionName:   FormatFloatToString,
-		FormatFunction: FloatToString,
+		FormatFunction: FormatDataFloatToString,
 	},
 	{
 		FunctionName:   FormatStringToNumber,
-		FormatFunction: StringToNumber,
+		FormatFunction: FormatDataStringToNumber,
 	},
 	{
 		FunctionName:   FormatStringToFloat,
-		FormatFunction: StringToFloat,
+		FormatFunction: FormatDataStringToFloat,
 	},
 }
 
@@ -60,7 +60,7 @@ const (
 	FormatStringToFloat  = "string_to_float"
 )
 
-func NumberToString(item interface{}, options ...interface{}) (interface{}, error) {
+func FormatDataNumberToString(item interface{}) (interface{}, error) {
 	float64ID, ok := item.(float64)
 	if ok {
 		int64ID, err := ameda.Float64ToInt64(float64ID)
@@ -72,7 +72,7 @@ func NumberToString(item interface{}, options ...interface{}) (interface{}, erro
 	return item, nil
 }
 
-func FloatToString(item interface{}, options ...interface{}) (interface{}, error) {
+func FormatDataFloatToString(item interface{}) (interface{}, error) {
 	float64ID, ok := item.(float64)
 	if ok {
 		return ameda.Float64ToString(float64ID), nil
@@ -80,7 +80,7 @@ func FloatToString(item interface{}, options ...interface{}) (interface{}, error
 	return item, nil
 }
 
-func StringToNumber(item interface{}, options ...interface{}) (interface{}, error) {
+func FormatDataStringToNumber(item interface{}) (interface{}, error) {
 	str, ok := item.(string)
 	if !ok {
 		return item, nil
@@ -95,7 +95,7 @@ func StringToNumber(item interface{}, options ...interface{}) (interface{}, erro
 	return intValue, nil
 }
 
-func StringToFloat(item interface{}, options ...interface{}) (interface{}, error) {
+func FormatDataStringToFloat(item interface{}) (interface{}, error) {
 	str, ok := item.(string)
 	if !ok {
 		return item, nil
