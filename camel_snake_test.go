@@ -6,7 +6,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestJSONRawCamel2Snake(t *testing.T) {
+func TestJSONSchemaCamel2Snake(t *testing.T) {
 	dir := "camel_snake"
 
 	input, err := readTestData(dir, "camel.json")
@@ -19,10 +19,10 @@ func TestJSONRawCamel2Snake(t *testing.T) {
 		panic(err)
 	}
 
-	assert.Equal(t, output, JSONRawCamel2Snake(input))
+	assert.Equal(t, output, JSONSchemaCamel2Snake(input))
 }
 
-func TestJSONRawSnake2Camel(t *testing.T) {
+func TestJSONSchemaSnake2Camel(t *testing.T) {
 	dir := "camel_snake"
 
 	input, err := readTestData(dir, "snake.json")
@@ -35,5 +35,5 @@ func TestJSONRawSnake2Camel(t *testing.T) {
 		panic(err)
 	}
 
-	assert.Equal(t, output, JSONRawSnake2Camel(input))
+	assert.Equal(t, output, JSONSchemaSnake2Camel(input))
 }
