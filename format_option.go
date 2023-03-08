@@ -4,11 +4,35 @@ import (
 	"github.com/andeya/ameda"
 )
 
+type FormatFuncType string
+
+const (
+	FormatFuncFormatData FormatFuncType = "format_function_type_format_data" // default type
+	FormatFuncFormatKey                 = "format_function_type_format_key"
+)
+
 type FormatFunc func(item interface{}) (interface{}, error)
 
 type FormatOption struct {
+	FunctionType   FormatFuncType
 	FunctionName   string
 	FormatFunction FormatFunc
+}
+
+func FormatDataOption(funcName string, formatFunc FormatFunc) FormatOption {
+	return FormatOption{
+		FunctionType:   FormatFuncFormatData,
+		FunctionName:   funcName,
+		FormatFunction: formatFunc,
+	}
+}
+
+func FormatKeyOption(funcName string, formatFunc FormatFunc) FormatOption {
+	return FormatOption{
+		FunctionType:   FormatFuncFormatKey,
+		FunctionName:   funcName,
+		FormatFunction: formatFunc,
+	}
 }
 
 const (
@@ -20,22 +44,10 @@ const (
 
 // DefaultFormatDataOptions creates default options to format JSON raw data.
 var DefaultFormatDataOptions = []FormatOption{
-	{
-		FunctionName:   FormatNumberToString,
-		FormatFunction: FormatDataNumberToString,
-	},
-	{
-		FunctionName:   FormatFloatToString,
-		FormatFunction: FormatDataFloatToString,
-	},
-	{
-		FunctionName:   FormatStringToNumber,
-		FormatFunction: FormatDataStringToNumber,
-	},
-	{
-		FunctionName:   FormatStringToFloat,
-		FormatFunction: FormatDataStringToFloat,
-	},
+	FormatDataOption(FormatNumberToString, FormatDataNumberToString),
+	FormatDataOption(FormatFloatToString, FormatDataFloatToString),
+	FormatDataOption(FormatStringToNumber, FormatDataStringToNumber),
+	FormatDataOption(FormatStringToFloat, FormatDataStringToFloat),
 }
 
 func FormatDataNumberToString(item interface{}) (interface{}, error) {

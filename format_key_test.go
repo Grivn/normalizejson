@@ -20,7 +20,7 @@ func TestJSONSchemaFormatKey(t *testing.T) {
 		panic(err)
 	}
 
-	formatted, err := JSONSchemaFormatKey(source, createFuncFormatKeyOptions()...)
+	formatted, err := JSONSchemaFormatKey(source, createFuncFormatKeyOption())
 	if err != nil {
 		panic(err)
 	}
@@ -42,7 +42,7 @@ func TestFormatKeyProvider(t *testing.T) {
 	}
 
 	provider := NewFormatKeyProvider()
-	provider.AddOptions(createFuncFormatKeyOptions()...)
+	provider.AddOptions(createFuncFormatKeyOption())
 
 	formatted, err := provider.FormatJSONSchema(source)
 	if err != nil {
@@ -56,13 +56,8 @@ const (
 	formatAppendSuffix = "append_suffix"
 )
 
-func createFuncFormatKeyOptions() []FormatOption {
-	return []FormatOption{
-		{
-			FunctionName:   formatAppendSuffix,
-			FormatFunction: formatKeyAppendSuffix,
-		},
-	}
+func createFuncFormatKeyOption() FormatOption {
+	return FormatKeyOption(formatAppendSuffix, formatKeyAppendSuffix)
 }
 
 func formatKeyAppendSuffix(item interface{}) (interface{}, error) {

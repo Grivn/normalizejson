@@ -116,10 +116,7 @@ func TestFormatDataProviderAndUpdateTemplate(t *testing.T) {
 }
 
 func createNilStringToBlankOption() FormatOption {
-	return FormatOption{
-		FunctionName:   "nil_string_to_blank",
-		FormatFunction: formatDataNilStringToBlank,
-	}
+	return FormatDataOption("nil_string_to_blank", formatDataNilStringToBlank)
 }
 
 func formatDataNilStringToBlank(item interface{}) (interface{}, error) {
