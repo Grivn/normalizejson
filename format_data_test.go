@@ -115,8 +115,8 @@ func TestFormatDataProviderAndUpdateTemplate(t *testing.T) {
 	assert.Equal(t, formatJSON(resultToBlank), formatJSON(formattedToBlank))
 }
 
-func createNilStringToBlankOption() FormatDataOption {
-	return FormatDataOption{
+func createNilStringToBlankOption() FormatOption {
+	return FormatOption{
 		FunctionName:   "nil_string_to_blank",
 		FormatFunction: formatDataNilStringToBlank,
 	}

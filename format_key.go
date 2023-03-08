@@ -2,31 +2,29 @@ package gojson
 
 import (
 	"encoding/json"
+	"fmt"
 )
 
-func JSONSchemaFormatKey(data []byte, options ...FormatKeyOption) ([]byte, error) {
+func JSONSchemaFormatKey(data []byte, options ...FormatOption) ([]byte, error) {
 	formatter := newFormatKeyImpl(options...)
 	return formatter.formatJSONSchema(data)
 }
 
-type FormatKeyOption struct {
-	From           string
-	To             string
-	FormatFunction FormatFunc
-}
-
 type formatKeyImpl struct {
-	formatKeyMap  map[string]string
-	formatKeyFunc FormatFunc
+	functionMap map[string]FormatFunc
 }
 
-func newFormatKeyImpl(options ...FormatKeyOption) *formatKeyImpl {
+func newFormatKeyImpl(options ...FormatOption) *formatKeyImpl {
 	fki := &formatKeyImpl{}
 	fki.addOptions(options...)
 	return fki
 }
 
 func (fki *formatKeyImpl) formatJSONSchema(data []byte) ([]byte, error) {
+	if len(fki.functionMap) == 0 {
+		return data, nil
+	}
+
 	var item interface{}
 	if err := json.Unmarshal(data, &item); err != nil {
 		return data, err
@@ -40,18 +38,13 @@ func (fki *formatKeyImpl) formatJSONSchema(data []byte) ([]byte, error) {
 	return json.Marshal(formattedItem)
 }
 
-func (fki *formatKeyImpl) addOptions(options ...FormatKeyOption) {
-	if fki.formatKeyMap == nil {
-		fki.formatKeyMap = make(map[string]string)
+func (fki *formatKeyImpl) addOptions(options ...FormatOption) {
+	if fki.functionMap == nil {
+		fki.functionMap = make(map[string]FormatFunc)
 	}
 
 	for _, option := range options {
-		fki.formatKeyMap[option.From] = option.To
-
-		if option.FormatFunction == nil {
-			continue
-		}
-		fki.formatKeyFunc = option.FormatFunction
+		fki.functionMap[option.FunctionName] = option.FormatFunction
 	}
 }
 
@@ -84,36 +77,30 @@ func (fki *formatKeyImpl) formatItemMap(itemMap map[string]interface{}) (map[str
 			return itemMap, err
 		}
 
-		formattedKey, ok := fki.formatKey(key)
-		if ok {
-			delete(itemMap, key)
+		formattedKey, err := fki.formatKey(key)
+		if err != nil {
+			return itemMap, err
 		}
 
+		delete(itemMap, key)
 		itemMap[formattedKey] = formattedItem
 	}
 
 	return itemMap, nil
 }
 
-func (fki *formatKeyImpl) formatKey(key string) (string, bool) {
-	to, ok := fki.formatKeyMap[key]
-	if ok {
-		return to, true
-	}
+func (fki *formatKeyImpl) formatKey(key string) (string, error) {
+	for _, f := range fki.functionMap {
+		formatted, err := f(key)
+		if err != nil {
+			return key, err
+		}
 
-	if fki.formatKeyFunc == nil {
-		return key, false
+		formattedKey, ok := formatted.(string)
+		if !ok {
+			return key, fmt.Errorf("illegal converted type")
+		}
+		key = formattedKey
 	}
-
-	raw, err := fki.formatKeyFunc(key)
-	if err != nil {
-		return key, false
-	}
-
-	to, ok = raw.(string)
-	if ok {
-		return to, true
-	}
-
-	return key, false
+	return key, nil
 }

@@ -20,7 +20,7 @@ func TestJSONSchemaFormatKey(t *testing.T) {
 		panic(err)
 	}
 
-	formatted, err := JSONSchemaFormatKey(source, createFormatKeyTestOptions()...)
+	formatted, err := JSONSchemaFormatKey(source, createFuncFormatKeyOptions()...)
 	if err != nil {
 		panic(err)
 	}
@@ -41,9 +41,10 @@ func TestFormatKeyProvider(t *testing.T) {
 		panic(err)
 	}
 
-	formatter := NewFormatKeyProvider(createFormatKeyTestOptions()...)
+	provider := NewFormatKeyProvider()
+	provider.AddOptions(createFuncFormatKeyOptions()...)
 
-	formatted, err := formatter.FormatJSONSchema(source)
+	formatted, err := provider.FormatJSONSchema(source)
 	if err != nil {
 		panic(err)
 	}
@@ -51,63 +52,20 @@ func TestFormatKeyProvider(t *testing.T) {
 	assert.Equal(t, formatJSON(result), formatJSON(formatted))
 }
 
-func TestFunctionFormatKeyProvider(t *testing.T) {
-	dir := "format_key"
+const (
+	formatAppendSuffix = "append_suffix"
+)
 
-	source, err := readTestData(dir, "source.json")
-	if err != nil {
-		panic(err)
-	}
-
-	result, err := readTestData(dir, "result.json")
-	if err != nil {
-		panic(err)
-	}
-
-	formatter := NewFormatKeyProvider(createFuncFormatKeyTestOptions()...)
-
-	formatted, err := formatter.FormatJSONSchema(source)
-	if err != nil {
-		panic(err)
-	}
-
-	assert.Equal(t, formatJSON(result), formatJSON(formatted))
-}
-
-func createFormatKeyTestOptions() []FormatKeyOption {
-	return []FormatKeyOption{
+func createFuncFormatKeyOptions() []FormatOption {
+	return []FormatOption{
 		{
-			From: "item1",
-			To:   "result_item1",
-		},
-		{
-			From: "item2",
-			To:   "result_item2",
-		},
-		{
-			From: "item3",
-			To:   "result_item3",
-		},
-		{
-			From: "item4",
-			To:   "result_item4",
-		},
-		{
-			From: "item5",
-			To:   "result_item5",
+			FunctionName:   formatAppendSuffix,
+			FormatFunction: formatKeyAppendSuffix,
 		},
 	}
 }
 
-func createFuncFormatKeyTestOptions() []FormatKeyOption {
-	return []FormatKeyOption{
-		{
-			FormatFunction: formatKeyFunction,
-		},
-	}
-}
-
-func formatKeyFunction(item interface{}) (interface{}, error) {
+func formatKeyAppendSuffix(item interface{}) (interface{}, error) {
 	str, ok := item.(string)
 	if !ok {
 		return item, nil

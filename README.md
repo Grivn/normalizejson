@@ -20,13 +20,13 @@ You can convert the JSON schema as below.
 
 ```go
 type FormatFunc func(item interface{}) (interface{}, error)
-type FormatDataOption struct {
+type FormatOption struct {
 	FunctionName   string
 	FormatFunction FormatFunc
 }
 ```
 
-The `FormatFunc` is used to convert JSON schema and the `FormatDataOption` has defined the name of each format_function. 
+The `FormatFunc` is used to convert JSON schema and the `FormatOption` has defined the name of each format_function. 
 
 For instance, there is a source JSON file as below.
 
@@ -131,7 +131,7 @@ The default `FormatFunc` options are as follows.
 
 ```go
 // DefaultOptions creates default options to format JSON schema.
-var DefaultOptions = []FormatDataOption{
+var DefaultOptions = []FormatOption{
 	{
 		FunctionName:   FormatNumberToString,
 		FormatFunction: FormatDataNumberToString,
