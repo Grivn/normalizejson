@@ -102,20 +102,20 @@ And the components in JSON might be nested, such as `sub_data_list` in `sub_data
 So that, we need to create template and create `FormatDataProvider` with options for `FormatFunc`.
 
 The example template is as following.
-The values `number_to_string/float_to_string/string_to_number/string_to_float` refer to the names of `format_function` created by options.
+The values `int_to_string/float_to_string/string_to_int/string_to_float` refer to the names of `format_function` created by options.
 The values `__template.id/__template.sub_data_list/__template.sub_data` refer to the structure of current JSON schema. 
 
 ```json
 {
   "data": {
-    "description": "number_to_string",
+    "description": "int_to_string",
     "id": "__template.id",
     "rate": "string_to_float",
     "sub_data_list": "__template.sub_data_list"
   },
-  "id": "number_to_string",
+  "id": "int_to_string",
   "sub_data": {
-    "item1": "string_to_number",
+    "item1": "string_to_int",
     "item3": "float_to_string",
     "item4": "string_to_float",
     "item5": "nil_string_to_blank",
@@ -133,16 +133,16 @@ The default `FormatFunc` options are as follows.
 // DefaultOptions creates default options to format JSON schema.
 var DefaultOptions = []FormatOption{
 	{
-		FunctionName:   FormatNumberToString,
-		FormatFunction: FormatDataNumberToString,
+		FunctionName:   FormatIntToString,
+		FormatFunction: FormatDataIntToString,
 	},
 	{
 		FunctionName:   FormatFloatToString,
 		FormatFunction: FormatDataFloatToString,
 	},
 	{
-		FunctionName:   FormatStringToNumber,
-		FormatFunction: FormatDataStringToNumber,
+		FunctionName:   FormatStringToInt,
+		FormatFunction: FormatDataStringToInt,
 	},
 	{
 		FunctionName:   FormatStringToFloat,
@@ -151,13 +151,13 @@ var DefaultOptions = []FormatOption{
 }
 
 const (
-	FormatNumberToString = "number_to_string"
+	FormatIntToString = "int_to_string"
 	FormatFloatToString  = "float_to_string"
-	FormatStringToNumber = "string_to_number"
+	FormatStringToInt = "string_to_int"
 	FormatStringToFloat  = "string_to_float"
 )
 
-func FormatDataNumberToString(item interface{}) (interface{}, error) {
+func FormatDataIntToString(item interface{}) (interface{}, error) {
 	float64ID, ok := item.(float64)
 	if ok {
 		int64ID, err := ameda.Float64ToInt64(float64ID)
@@ -177,7 +177,7 @@ func FormatDataFloatToString(item interface{}) (interface{}, error) {
 	return item, nil
 }
 
-func FormatDataStringToNumber(item interface{}) (interface{}, error) {
+func FormatDataStringToInt(item interface{}) (interface{}, error) {
 	str, ok := item.(string)
 	if !ok {
 		return item, nil

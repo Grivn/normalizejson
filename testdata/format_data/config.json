@@ -1,13 +1,13 @@
 {
   "data": {
-    "description": "number_to_string",
+    "description": "int_to_string",
     "id": "__template.id",
     "rate": "string_to_float",
     "sub_data_list": "__template.sub_data_list"
   },
-  "id": "number_to_string",
+  "id": "int_to_string",
   "sub_data": {
-    "item1": "string_to_number",
+    "item1": "string_to_int",
     "item3": "float_to_string",
     "item4": "string_to_float",
     "sub_data_list": "__template.sub_data_list"

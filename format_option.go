@@ -36,21 +36,21 @@ func FormatKeyOption(funcName string, formatFunc FormatFunc) FormatOption {
 }
 
 const (
-	FormatNumberToString = "number_to_string"
-	FormatFloatToString  = "float_to_string"
-	FormatStringToNumber = "string_to_number"
-	FormatStringToFloat  = "string_to_float"
+	FormatIntToString   = "int_to_string"
+	FormatFloatToString = "float_to_string"
+	FormatStringToInt   = "string_to_int"
+	FormatStringToFloat = "string_to_float"
 )
 
 // DefaultFormatDataOptions creates default options to format JSON raw data.
 var DefaultFormatDataOptions = []FormatOption{
-	FormatDataOption(FormatNumberToString, FormatDataNumberToString),
+	FormatDataOption(FormatIntToString, FormatDataIntToString),
 	FormatDataOption(FormatFloatToString, FormatDataFloatToString),
-	FormatDataOption(FormatStringToNumber, FormatDataStringToNumber),
+	FormatDataOption(FormatStringToInt, FormatDataStringToInt),
 	FormatDataOption(FormatStringToFloat, FormatDataStringToFloat),
 }
 
-func FormatDataNumberToString(item interface{}) (interface{}, error) {
+func FormatDataIntToString(item interface{}) (interface{}, error) {
 	float64ID, ok := item.(float64)
 	if ok {
 		int64ID, err := ameda.Float64ToInt64(float64ID)
@@ -70,7 +70,7 @@ func FormatDataFloatToString(item interface{}) (interface{}, error) {
 	return item, nil
 }
 
-func FormatDataStringToNumber(item interface{}) (interface{}, error) {
+func FormatDataStringToInt(item interface{}) (interface{}, error) {
 	str, ok := item.(string)
 	if !ok {
 		return item, nil
