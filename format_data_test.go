@@ -58,7 +58,7 @@ func TestFormatData(t *testing.T) {
 	assert.Nil(t, json.Unmarshal(formatted, &s))
 }
 
-func TestFormatDataProviderAndUpdateTemplate(t *testing.T) {
+func TestFormatDataProviderAndUpdateTemplateAndReset(t *testing.T) {
 	dir := "format_data"
 	template, err := readTestData(dir, "config.json")
 	if err != nil {
@@ -113,6 +113,18 @@ func TestFormatDataProviderAndUpdateTemplate(t *testing.T) {
 	}
 
 	assert.Equal(t, formatJSON(resultToBlank), formatJSON(formattedToBlank))
+
+	provider.Reset()
+	if err = provider.UpdateTemplate(templateToBlank); err != nil {
+		panic(err)
+	}
+
+	formattedFailed, err := provider.FormatJSONSchema(source)
+	if err != nil {
+		panic(err)
+	}
+
+	assert.Equal(t, formatJSON(source), formatJSON(formattedFailed))
 }
 
 func createNilStringToBlankOption() FormatOption {

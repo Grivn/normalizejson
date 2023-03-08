@@ -41,6 +41,11 @@ func newFormatDataImpl(rawTemplate []byte, options ...FormatOption) (*formatData
 	return fii, nil
 }
 
+func (fdi *formatDataImpl) reset() {
+	fdi.functionMap = make(map[string]FormatFunc)
+	fdi.templateMap = make(map[string]interface{})
+}
+
 func (fdi *formatDataImpl) updateTemplate(rawTemplate []byte) error {
 	templateMap := make(map[string]interface{})
 	if err := json.Unmarshal(rawTemplate, &templateMap); err != nil {

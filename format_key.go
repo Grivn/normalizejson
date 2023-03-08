@@ -38,6 +38,10 @@ func (fki *formatKeyImpl) formatJSONSchema(data []byte) ([]byte, error) {
 	return json.Marshal(formattedItem)
 }
 
+func (fki *formatKeyImpl) reset() {
+	fki.functionMap = make(map[string]FormatFunc)
+}
+
 func (fki *formatKeyImpl) addOptions(options ...FormatOption) {
 	if fki.functionMap == nil {
 		fki.functionMap = make(map[string]FormatFunc)

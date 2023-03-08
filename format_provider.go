@@ -4,11 +4,13 @@ type FormatDataProvider interface {
 	AddOptions(options ...FormatOption)
 	UpdateTemplate(rawTemplate []byte) error
 	FormatJSONSchema(data []byte) ([]byte, error)
+	Reset()
 }
 
 type FormatKeyProvider interface {
 	AddOptions(options ...FormatOption)
 	FormatJSONSchema(data []byte) ([]byte, error)
+	Reset()
 }
 
 func NewFormatDataProvider(rawTemplate []byte, options ...FormatOption) (FormatDataProvider, error) {
@@ -31,6 +33,10 @@ func (fdi *formatDataImpl) FormatJSONSchema(data []byte) ([]byte, error) {
 	return fdi.formatJSONSchema(data)
 }
 
+func (fdi *formatDataImpl) Reset() {
+	fdi.reset()
+}
+
 func NewFormatKeyProvider(options ...FormatOption) FormatKeyProvider {
 	return newFormatKeyImpl(options...)
 }
@@ -41,4 +47,8 @@ func (fki *formatKeyImpl) AddOptions(options ...FormatOption) {
 
 func (fki *formatKeyImpl) FormatJSONSchema(data []byte) ([]byte, error) {
 	return fki.formatJSONSchema(data)
+}
+
+func (fki *formatKeyImpl) Reset() {
+	fki.reset()
 }

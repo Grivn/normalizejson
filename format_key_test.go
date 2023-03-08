@@ -100,6 +100,38 @@ func TestFormatKeyProviderSnakeToCamel(t *testing.T) {
 	assert.Equal(t, formatJSON(camel), formatJSON(formattedCamel))
 }
 
+func TestFormatKeyProviderReset(t *testing.T) {
+	dir := "camel_snake"
+
+	camel, err := readTestData(dir, "camel.json")
+	if err != nil {
+		panic(err)
+	}
+
+	snake, err := readTestData(dir, "snake.json")
+	if err != nil {
+		panic(err)
+	}
+
+	provider := NewFormatKeyProvider()
+	provider.AddOptions(FormatKeyOption(FormatSnakeToCamel, FormatKeySnakeToCamel))
+
+	formattedCamel, err := provider.FormatJSONSchema(snake)
+	if err != nil {
+		panic(err)
+	}
+
+	assert.Equal(t, formatJSON(camel), formatJSON(formattedCamel))
+
+	provider.Reset()
+	formattedFailed, err := provider.FormatJSONSchema(snake)
+	if err != nil {
+		panic(err)
+	}
+
+	assert.Equal(t, formatJSON(snake), formatJSON(formattedFailed))
+}
+
 const (
 	formatAppendSuffix = "append_suffix"
 )
