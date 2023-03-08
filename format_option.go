@@ -1,6 +1,9 @@
 package gojson
 
 import (
+	"strings"
+
+	"github.com/Grivn/gojson/regex"
 	"github.com/andeya/ameda"
 )
 
@@ -40,9 +43,11 @@ const (
 	FormatFloatToString = "float_to_string"
 	FormatStringToInt   = "string_to_int"
 	FormatStringToFloat = "string_to_float"
+
+	FormatCamelToSnake = "camel_to_snake"
+	FormatSnakeToCamel = "snake_to_camel"
 )
 
-// DefaultFormatDataOptions creates default options to format JSON raw data.
 var DefaultFormatDataOptions = []FormatOption{
 	FormatDataOption(FormatIntToString, FormatDataIntToString),
 	FormatDataOption(FormatFloatToString, FormatDataFloatToString),
@@ -98,4 +103,26 @@ func FormatDataStringToFloat(item interface{}) (interface{}, error) {
 		return item, err
 	}
 	return floatValue, nil
+}
+
+func FormatKeyCamelToSnake(item interface{}) (interface{}, error) {
+	str, ok := item.(string)
+	if !ok {
+		return item, nil
+	}
+	return strings.ToLower(regex.CamelCase.ReplaceAllString(str, `${1}_${2}`)), nil
+}
+
+func FormatKeySnakeToCamel(item interface{}) (interface{}, error) {
+	str, ok := item.(string)
+	if !ok {
+		return item, nil
+	}
+
+	strList := strings.Split(str, "_")
+	for index, str := range strList {
+		strList[index] = firstToUpper(str)
+	}
+	res := strings.Join(strList, "")
+	return firstToLower(res), nil
 }
