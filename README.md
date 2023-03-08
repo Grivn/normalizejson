@@ -1,5 +1,5 @@
 # GoJSON
-Toolkits for golang to process JSON schema.
+Normalize the key and value in JSON schema to specific type.
 
 ## Prepare
 
