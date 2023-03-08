@@ -20,7 +20,11 @@ func TestJSONSchemaFormatKey(t *testing.T) {
 		panic(err)
 	}
 
-	formatted := JSONSchemaFormatKey(source, createFormatKeyTestOptions()...)
+	formatted, err := JSONSchemaFormatKey(source, createFuncFormatKeyOption())
+	if err != nil {
+		panic(err)
+	}
+
 	assert.Equal(t, formatJSON(result), formatJSON(formatted))
 }
 
@@ -37,65 +41,106 @@ func TestFormatKeyProvider(t *testing.T) {
 		panic(err)
 	}
 
-	formatter := NewFormatKeyProvider(createFormatKeyTestOptions()...)
+	provider := NewFormatKeyProvider()
+	provider.AddOptions(createFuncFormatKeyOption())
 
-	formatted := formatter.FormatJSONSchema(source)
-	assert.Equal(t, formatJSON(result), formatJSON(formatted))
-}
-
-func TestFunctionFormatKeyProvider(t *testing.T) {
-	dir := "format_key"
-
-	source, err := readTestData(dir, "source.json")
+	formatted, err := provider.FormatJSONSchema(source)
 	if err != nil {
 		panic(err)
 	}
 
-	result, err := readTestData(dir, "result.json")
+	assert.Equal(t, formatJSON(result), formatJSON(formatted))
+}
+
+func TestFormatKeyProviderCamelToSnake(t *testing.T) {
+	dir := "camel_snake"
+
+	camel, err := readTestData(dir, "camel.json")
 	if err != nil {
 		panic(err)
 	}
 
-	formatter := NewFormatKeyProvider(createFuncFormatKeyTestOptions()...)
-
-	formatted := formatter.FormatJSONSchema(source)
-	assert.Equal(t, formatJSON(result), formatJSON(formatted))
-}
-
-func createFormatKeyTestOptions() []FormatKeyOption {
-	return []FormatKeyOption{
-		{
-			From: "item1",
-			To:   "result_item1",
-		},
-		{
-			From: "item2",
-			To:   "result_item2",
-		},
-		{
-			From: "item3",
-			To:   "result_item3",
-		},
-		{
-			From: "item4",
-			To:   "result_item4",
-		},
-		{
-			From: "item5",
-			To:   "result_item5",
-		},
+	snake, err := readTestData(dir, "snake.json")
+	if err != nil {
+		panic(err)
 	}
-}
 
-func createFuncFormatKeyTestOptions() []FormatKeyOption {
-	return []FormatKeyOption{
-		{
-			FormatFunction: formatKeyFunction,
-		},
+	provider := NewFormatKeyProvider()
+	provider.AddOptions(FormatKeyOption(FormatCamelToSnake, FormatKeyCamelToSnake))
+
+	formattedSnake, err := provider.FormatJSONSchema(camel)
+	if err != nil {
+		panic(err)
 	}
+
+	assert.Equal(t, formatJSON(snake), formatJSON(formattedSnake))
 }
 
-func formatKeyFunction(item interface{}) (interface{}, error) {
+func TestFormatKeyProviderSnakeToCamel(t *testing.T) {
+	dir := "camel_snake"
+
+	camel, err := readTestData(dir, "camel.json")
+	if err != nil {
+		panic(err)
+	}
+
+	snake, err := readTestData(dir, "snake.json")
+	if err != nil {
+		panic(err)
+	}
+
+	provider := NewFormatKeyProvider()
+	provider.AddOptions(FormatKeyOption(FormatSnakeToCamel, FormatKeySnakeToCamel))
+
+	formattedCamel, err := provider.FormatJSONSchema(snake)
+	if err != nil {
+		panic(err)
+	}
+
+	assert.Equal(t, formatJSON(camel), formatJSON(formattedCamel))
+}
+
+func TestFormatKeyProviderReset(t *testing.T) {
+	dir := "camel_snake"
+
+	camel, err := readTestData(dir, "camel.json")
+	if err != nil {
+		panic(err)
+	}
+
+	snake, err := readTestData(dir, "snake.json")
+	if err != nil {
+		panic(err)
+	}
+
+	provider := NewFormatKeyProvider()
+	provider.AddOptions(FormatKeyOption(FormatSnakeToCamel, FormatKeySnakeToCamel))
+
+	formattedCamel, err := provider.FormatJSONSchema(snake)
+	if err != nil {
+		panic(err)
+	}
+
+	assert.Equal(t, formatJSON(camel), formatJSON(formattedCamel))
+
+	provider.Reset()
+	formattedFailed, err := provider.FormatJSONSchema(snake)
+	if err != nil {
+		panic(err)
+	}
+
+	assert.Equal(t, formatJSON(snake), formatJSON(formattedFailed))
+}
+
+const (
+	formatAppendSuffix = "append_suffix"
+)
+
+func createFuncFormatKeyOption() FormatOption {
+	return FormatKeyOption(formatAppendSuffix, formatKeyAppendSuffix)
+}
+
+func formatKeyAppendSuffix(item interface{}) (interface{}, error) {
 	str, ok := item.(string)
 	if !ok {
 		return item, nil

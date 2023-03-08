@@ -7,9 +7,9 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestFormatData(t *testing.T) {
+func TestFormatSchema(t *testing.T) {
 	s := Schema{}
-	dir := "format_data"
+	dir := "format_schema"
 	template, err := readTestData(dir, "config.json")
 	if err != nil {
 		panic(err)
@@ -25,7 +25,8 @@ func TestFormatData(t *testing.T) {
 		panic(err)
 	}
 
-	formatted, err := DefaultJSONSchemaFormatData(source, template)
+	options := append(DefaultFormatDataOptions, FormatKeyOption(FormatCamelToSnake, FormatKeyCamelToSnake))
+	formatted, err := JSONSchemaFormat(source, template, options...)
 	if err != nil {
 		panic(err)
 	}
@@ -36,8 +37,8 @@ func TestFormatData(t *testing.T) {
 	assert.Nil(t, json.Unmarshal(formatted, &s))
 }
 
-func TestFormatDataProviderAndUpdateTemplateAndReset(t *testing.T) {
-	dir := "format_data"
+func TestFormatSchemaProviderAndUpdateTemplateAndReset(t *testing.T) {
+	dir := "format_schema"
 	template, err := readTestData(dir, "config.json")
 	if err != nil {
 		panic(err)
@@ -53,7 +54,7 @@ func TestFormatDataProviderAndUpdateTemplateAndReset(t *testing.T) {
 		panic(err)
 	}
 
-	provider, err := NewDefaultFormatDataProvider(nil)
+	provider, err := NewDefaultFormatSchemaProvider(nil)
 	if err != nil {
 		panic(err)
 	}
@@ -61,6 +62,9 @@ func TestFormatDataProviderAndUpdateTemplateAndReset(t *testing.T) {
 	if err = provider.UpdateTemplate(template); err != nil {
 		panic(err)
 	}
+
+	// add option to format JSON key.
+	provider.AddOptions(FormatKeyOption(FormatCamelToSnake, FormatKeyCamelToSnake))
 
 	formatted, err := provider.FormatJSONSchema(source)
 	if err != nil {
@@ -103,20 +107,4 @@ func TestFormatDataProviderAndUpdateTemplateAndReset(t *testing.T) {
 	}
 
 	assert.Equal(t, formatJSON(source), formatJSON(formattedFailed))
-}
-
-func createNilStringToBlankOption() FormatOption {
-	return FormatDataOption("nil_string_to_blank", formatDataNilStringToBlank)
-}
-
-func formatDataNilStringToBlank(item interface{}) (interface{}, error) {
-	str, ok := item.(string)
-	if !ok {
-		return item, nil
-	}
-
-	if str == "" {
-		return "blank", nil
-	}
-	return item, nil
 }

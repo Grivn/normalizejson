@@ -1,44 +1,77 @@
 package gojson
 
-type FormatDataProvider interface {
-	AddOptions(options ...FormatDataOption)
+type FormatProvider interface {
+	AddOptions(options ...FormatOption)
 	UpdateTemplate(rawTemplate []byte) error
 	FormatJSONSchema(data []byte) ([]byte, error)
+	Reset()
 }
 
-type FormatKeyProvider interface {
-	AddOptions(options ...FormatKeyOption)
-	FormatJSONSchema(data []byte) []byte
+func NewFormatSchemaProvider(rawTemplate []byte, options ...FormatOption) (FormatProvider, error) {
+	return newFormatSchemaImpl(rawTemplate, options...)
 }
 
-func NewFormatDataProvider(rawTemplate []byte, options ...FormatDataOption) (FormatDataProvider, error) {
-	return newFormatItemImpl(rawTemplate, options...)
+func NewDefaultFormatSchemaProvider(rawTemplate []byte) (FormatProvider, error) {
+	return NewFormatSchemaProvider(rawTemplate, DefaultFormatDataOptions...)
 }
 
-func NewDefaultFormatDataProvider(rawTemplate []byte) (FormatDataProvider, error) {
-	return NewFormatDataProvider(rawTemplate, DefaultOptions...)
+func (fsi *formatSchemaImpl) AddOptions(options ...FormatOption) {
+	fsi.addOptions(options...)
 }
 
-func (fii *formatItemsImpl) AddOptions(options ...FormatDataOption) {
-	fii.addOptions(options...)
+func (fsi *formatSchemaImpl) UpdateTemplate(rawTemplate []byte) error {
+	return fsi.updateTemplate(rawTemplate)
 }
 
-func (fii *formatItemsImpl) UpdateTemplate(rawTemplate []byte) error {
-	return fii.updateTemplate(rawTemplate)
+func (fsi *formatSchemaImpl) FormatJSONSchema(data []byte) ([]byte, error) {
+	return fsi.formatJSONSchema(data)
 }
 
-func (fii *formatItemsImpl) FormatJSONSchema(data []byte) ([]byte, error) {
-	return fii.formatJSONSchema(data)
+func (fsi *formatSchemaImpl) Reset() {
+	fsi.reset()
 }
 
-func NewFormatKeyProvider(options ...FormatKeyOption) FormatKeyProvider {
+func NewFormatDataProvider(rawTemplate []byte, options ...FormatOption) (FormatProvider, error) {
+	return newFormatDataImpl(rawTemplate, options...)
+}
+
+func NewDefaultFormatDataProvider(rawTemplate []byte) (FormatProvider, error) {
+	return NewFormatDataProvider(rawTemplate, DefaultFormatDataOptions...)
+}
+
+func (fdi *formatDataImpl) AddOptions(options ...FormatOption) {
+	fdi.addOptions(options...)
+}
+
+func (fdi *formatDataImpl) UpdateTemplate(rawTemplate []byte) error {
+	return fdi.updateTemplate(rawTemplate)
+}
+
+func (fdi *formatDataImpl) FormatJSONSchema(data []byte) ([]byte, error) {
+	return fdi.formatJSONSchema(data)
+}
+
+func (fdi *formatDataImpl) Reset() {
+	fdi.reset()
+}
+
+func NewFormatKeyProvider(options ...FormatOption) FormatProvider {
 	return newFormatKeyImpl(options...)
 }
 
-func (fki *formatKeyImpl) AddOptions(options ...FormatKeyOption) {
+func (fki *formatKeyImpl) AddOptions(options ...FormatOption) {
 	fki.addOptions(options...)
 }
 
-func (fki *formatKeyImpl) FormatJSONSchema(data []byte) []byte {
+func (fki *formatKeyImpl) UpdateTemplate(rawTemplate []byte) error {
+	// do nothing.
+	return nil
+}
+
+func (fki *formatKeyImpl) FormatJSONSchema(data []byte) ([]byte, error) {
 	return fki.formatJSONSchema(data)
+}
+
+func (fki *formatKeyImpl) Reset() {
+	fki.reset()
 }

@@ -9,7 +9,7 @@ import (
 )
 
 func JSONSchemaCamel2Snake(data []byte) []byte {
-	return regex.JSONKey.ReplaceAllFunc(data, convertBytesCamel2Snake)
+	return regex.CamelCaseJSONKey.ReplaceAllFunc(data, convertBytesCamel2Snake)
 }
 
 func JSONSchemaSnake2Camel(data []byte) []byte {
@@ -21,10 +21,9 @@ func convertBytesCamel2Snake(match []byte) []byte {
 }
 
 func convertBytesSnake2Camel(match []byte) []byte {
-	str := string(match)
-	key := str[1 : len(str)-2]
-	resKey := toCamelCase(key)
-	return []byte(`"` + resKey + `":`)
+	key := readKey(match)
+	res := toCamelCase(key)
+	return createKey(res)
 }
 
 func toCamelCase(source string) string {
@@ -48,4 +47,14 @@ func firstToLower(str string) string {
 		return string(unicode.ToLower(v)) + str[i+1:]
 	}
 	return ""
+}
+
+func readKey(raw []byte) string {
+	str := string(raw)
+	key := str[1 : len(str)-2]
+	return key
+}
+
+func createKey(key string) []byte {
+	return []byte(`"` + key + `":`)
 }

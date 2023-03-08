@@ -1,7 +1,7 @@
 package regex
 
 var (
-	CamelCase = regexCamelCase
-	SnakeCase = regexSnakeCase
-	JSONKey   = regexJSONKey
+	CamelCase        = regexCamelCase
+	JSONKey          = regexJSONKey
+	CamelCaseJSONKey = regexCamelCaseJSONKey
 )
