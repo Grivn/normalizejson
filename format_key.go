@@ -1,10 +1,10 @@
 package gojson
 
 import (
-	"github.com/Grivn/gojson/regex"
+	"encoding/json"
 )
 
-func JSONSchemaFormatKey(data []byte, options ...FormatKeyOption) []byte {
+func JSONSchemaFormatKey(data []byte, options ...FormatKeyOption) ([]byte, error) {
 	formatter := newFormatKeyImpl(options...)
 	return formatter.formatJSONSchema(data)
 }
@@ -26,32 +26,18 @@ func newFormatKeyImpl(options ...FormatKeyOption) *formatKeyImpl {
 	return fki
 }
 
-func (fki *formatKeyImpl) formatJSONSchema(data []byte) []byte {
-	return regex.JSONKey.ReplaceAllFunc(data, fki.formatKey)
-}
-
-func (fki *formatKeyImpl) formatKey(match []byte) []byte {
-	key := readKey(match)
-	to, ok := fki.formatKeyMap[key]
-	if ok {
-		return createKey(to)
+func (fki *formatKeyImpl) formatJSONSchema(data []byte) ([]byte, error) {
+	var item interface{}
+	if err := json.Unmarshal(data, &item); err != nil {
+		return data, err
 	}
 
-	if fki.formatKeyFunc == nil {
-		return match
-	}
-
-	raw, err := fki.formatKeyFunc(key)
+	formattedItem, err := fki.formatItem(item)
 	if err != nil {
-		return match
+		return data, err
 	}
 
-	to, ok = raw.(string)
-	if ok {
-		return createKey(to)
-	}
-
-	return match
+	return json.Marshal(formattedItem)
 }
 
 func (fki *formatKeyImpl) addOptions(options ...FormatKeyOption) {
@@ -69,12 +55,65 @@ func (fki *formatKeyImpl) addOptions(options ...FormatKeyOption) {
 	}
 }
 
-func readKey(raw []byte) string {
-	str := string(raw)
-	key := str[1 : len(str)-2]
-	return key
+func (fki *formatKeyImpl) formatItem(item interface{}) (interface{}, error) {
+	switch v := item.(type) {
+	case []interface{}:
+		return fki.formatItemList(v)
+	case map[string]interface{}:
+		return fki.formatItemMap(v)
+	default:
+		return item, nil
+	}
 }
 
-func createKey(key string) []byte {
-	return []byte(`"` + key + `":`)
+func (fki *formatKeyImpl) formatItemList(itemList []interface{}) ([]interface{}, error) {
+	for index, item := range itemList {
+		formattedItem, err := fki.formatItem(item)
+		if err != nil {
+			return itemList, err
+		}
+		itemList[index] = formattedItem
+	}
+	return itemList, nil
+}
+
+func (fki *formatKeyImpl) formatItemMap(itemMap map[string]interface{}) (map[string]interface{}, error) {
+	for key, item := range itemMap {
+		formattedItem, err := fki.formatItem(item)
+		if err != nil {
+			return itemMap, err
+		}
+
+		formattedKey, ok := fki.formatKey(key)
+		if ok {
+			delete(itemMap, key)
+		}
+
+		itemMap[formattedKey] = formattedItem
+	}
+
+	return itemMap, nil
+}
+
+func (fki *formatKeyImpl) formatKey(key string) (string, bool) {
+	to, ok := fki.formatKeyMap[key]
+	if ok {
+		return to, true
+	}
+
+	if fki.formatKeyFunc == nil {
+		return key, false
+	}
+
+	raw, err := fki.formatKeyFunc(key)
+	if err != nil {
+		return key, false
+	}
+
+	to, ok = raw.(string)
+	if ok {
+		return to, true
+	}
+
+	return key, false
 }

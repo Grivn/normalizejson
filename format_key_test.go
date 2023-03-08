@@ -20,7 +20,11 @@ func TestJSONSchemaFormatKey(t *testing.T) {
 		panic(err)
 	}
 
-	formatted := JSONSchemaFormatKey(source, createFormatKeyTestOptions()...)
+	formatted, err := JSONSchemaFormatKey(source, createFormatKeyTestOptions()...)
+	if err != nil {
+		panic(err)
+	}
+
 	assert.Equal(t, formatJSON(result), formatJSON(formatted))
 }
 
@@ -39,7 +43,11 @@ func TestFormatKeyProvider(t *testing.T) {
 
 	formatter := NewFormatKeyProvider(createFormatKeyTestOptions()...)
 
-	formatted := formatter.FormatJSONSchema(source)
+	formatted, err := formatter.FormatJSONSchema(source)
+	if err != nil {
+		panic(err)
+	}
+
 	assert.Equal(t, formatJSON(result), formatJSON(formatted))
 }
 
@@ -58,7 +66,11 @@ func TestFunctionFormatKeyProvider(t *testing.T) {
 
 	formatter := NewFormatKeyProvider(createFuncFormatKeyTestOptions()...)
 
-	formatted := formatter.FormatJSONSchema(source)
+	formatted, err := formatter.FormatJSONSchema(source)
+	if err != nil {
+		panic(err)
+	}
+
 	assert.Equal(t, formatJSON(result), formatJSON(formatted))
 }
 

@@ -8,7 +8,7 @@ type FormatDataProvider interface {
 
 type FormatKeyProvider interface {
 	AddOptions(options ...FormatKeyOption)
-	FormatJSONSchema(data []byte) []byte
+	FormatJSONSchema(data []byte) ([]byte, error)
 }
 
 func NewFormatDataProvider(rawTemplate []byte, options ...FormatDataOption) (FormatDataProvider, error) {
@@ -39,6 +39,6 @@ func (fki *formatKeyImpl) AddOptions(options ...FormatKeyOption) {
 	fki.addOptions(options...)
 }
 
-func (fki *formatKeyImpl) FormatJSONSchema(data []byte) []byte {
+func (fki *formatKeyImpl) FormatJSONSchema(data []byte) ([]byte, error) {
 	return fki.formatJSONSchema(data)
 }
