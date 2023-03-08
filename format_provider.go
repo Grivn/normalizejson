@@ -12,23 +12,23 @@ type FormatKeyProvider interface {
 }
 
 func NewFormatDataProvider(rawTemplate []byte, options ...FormatDataOption) (FormatDataProvider, error) {
-	return newFormatItemImpl(rawTemplate, options...)
+	return newFormatDataImpl(rawTemplate, options...)
 }
 
 func NewDefaultFormatDataProvider(rawTemplate []byte) (FormatDataProvider, error) {
 	return NewFormatDataProvider(rawTemplate, DefaultOptions...)
 }
 
-func (fii *formatItemsImpl) AddOptions(options ...FormatDataOption) {
-	fii.addOptions(options...)
+func (fdi *formatDataImpl) AddOptions(options ...FormatDataOption) {
+	fdi.addOptions(options...)
 }
 
-func (fii *formatItemsImpl) UpdateTemplate(rawTemplate []byte) error {
-	return fii.updateTemplate(rawTemplate)
+func (fdi *formatDataImpl) UpdateTemplate(rawTemplate []byte) error {
+	return fdi.updateTemplate(rawTemplate)
 }
 
-func (fii *formatItemsImpl) FormatJSONSchema(data []byte) ([]byte, error) {
-	return fii.formatJSONSchema(data)
+func (fdi *formatDataImpl) FormatJSONSchema(data []byte) ([]byte, error) {
+	return fdi.formatJSONSchema(data)
 }
 
 func NewFormatKeyProvider(options ...FormatKeyOption) FormatKeyProvider {
