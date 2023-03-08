@@ -19,14 +19,22 @@ You can convert the JSON schema between camel-case and snake-case as below.
 You can convert the JSON schema as below.
 
 ```go
+package main
+type FormatFuncType string
+const (
+	FormatFuncFormatData FormatFuncType = "format_function_type_format_data" // default type
+	FormatFuncFormatKey                 = "format_function_type_format_key"
+)
 type FormatFunc func(item interface{}) (interface{}, error)
 type FormatOption struct {
+	FunctionType   FormatFuncType
 	FunctionName   string
 	FormatFunction FormatFunc
 }
 ```
 
 The `FormatFunc` is used to convert JSON schema and the `FormatOption` has defined the name of each format_function. 
+To convert the data values of JSON schema, we should define the `FormatFuncType` as `FormatFuncFormatData`. 
 
 For instance, there is a source JSON file as below.
 
@@ -130,31 +138,19 @@ The values `__template.id/__template.sub_data_list/__template.sub_data` refer to
 The default `FormatFunc` options are as follows.
 
 ```go
-// DefaultOptions creates default options to format JSON schema.
-var DefaultOptions = []FormatOption{
-	{
-		FunctionName:   FormatIntToString,
-		FormatFunction: FormatDataIntToString,
-	},
-	{
-		FunctionName:   FormatFloatToString,
-		FormatFunction: FormatDataFloatToString,
-	},
-	{
-		FunctionName:   FormatStringToInt,
-		FormatFunction: FormatDataStringToInt,
-	},
-	{
-		FunctionName:   FormatStringToFloat,
-		FormatFunction: FormatDataStringToFloat,
-	},
+func FormatDataOption(funcName string, formatFunc FormatFunc) FormatOption {
+	return FormatOption{
+		FunctionType:   FormatFuncFormatData,
+		FunctionName:   funcName,
+		FormatFunction: formatFunc,
+	}
 }
 
 const (
-	FormatIntToString = "int_to_string"
-	FormatFloatToString  = "float_to_string"
-	FormatStringToInt = "string_to_int"
-	FormatStringToFloat  = "string_to_float"
+	FormatIntToString   = "int_to_string"
+	FormatFloatToString = "float_to_string"
+	FormatStringToInt   = "string_to_int"
+	FormatStringToFloat = "string_to_float"
 )
 
 func FormatDataIntToString(item interface{}) (interface{}, error) {
@@ -208,27 +204,77 @@ func FormatDataStringToFloat(item interface{}) (interface{}, error) {
 }
 ```
 
+```go
+var DefaultFormatDataOptions = []FormatOption{
+	FormatDataOption(FormatIntToString, FormatDataIntToString),
+	FormatDataOption(FormatFloatToString, FormatDataFloatToString),
+	FormatDataOption(FormatStringToInt, FormatDataStringToInt),
+	FormatDataOption(FormatStringToFloat, FormatDataStringToFloat),
+}
+```
+
 In addition, you can create your own `FormatFunc` and add it into `FormatDataProvider` with `AddOptions` 
 to implement your own method to normalize the JSON schema for designated part.
 
-You can refer to [format_data_test.go](format_data_test.go) for details to create `FormatDataProvider` and normalize the JSON file.
+You can refer to [format_data_test.go](format_data_test.go) for details to create `FormatProvider` and normalize the value data in JSON file.
 
 ## FormatKey
 
 You can convert the key in JSON schema as below.
 
 ```go
+package main
+type FormatFuncType string
+const (
+	FormatFuncFormatData FormatFuncType = "format_function_type_format_data" // default type
+	FormatFuncFormatKey                 = "format_function_type_format_key"
+)
 type FormatFunc func(item interface{}) (interface{}, error)
-type FormatKeyOption struct {
-	From           string
-	To             string
+type FormatOption struct {
+	FunctionType   FormatFuncType
+	FunctionName   string
 	FormatFunction FormatFunc
 }
 ```
 
-The `FormatKeyOption` has defined the method to convert JSON key, convert from `option.from` to `option.to` or take the `option.format_function` to convert the JSON key.
+The `FormatOption` has defined the method to convert JSON key.
+To convert JSON key, we need to define the `FormatFuncType` as `FormatFuncFormatKey`. 
 
-For each option, it can only have the `from` to `to` pair or have a `format_function`.
-When `FormatKeyProvider` converts the JSON key, it tries to convert `from` to `to` at first, then invoke `format_function` to convert found JSON key.
+```go
+func FormatKeyOption(funcName string, formatFunc FormatFunc) FormatOption {
+	return FormatOption{
+		FunctionType:   FormatFuncFormatKey,
+		FunctionName:   funcName,
+		FormatFunction: formatFunc,
+	}
+}
 
-You can refer to [format_key_test.go](format_key_test.go) for details to create `FormatKeyProvider` and normalize the JSON file.
+const (
+	FormatCamelToSnake = "camel_to_snake"
+)
+
+func FormatKeyCamelToSnake(item interface{}) (interface{}, error) {
+	str, ok := item.(string)
+	if !ok {
+		return item, nil
+	}
+	return strings.ToLower(regex.CamelCase.ReplaceAllString(str, `${1}_${2}`)), nil
+}
+```
+
+```go
+var option = FormatKeyOption(FormatSnakeToCamel, FormatKeySnakeToCamel)
+```
+
+When `FormatKeyProvider` converts the JSON key, it tries to invoke each `FormatFunc` from options to convert found JSON key.
+
+You can refer to [format_key_test.go](format_key_test.go) for details to create `FormatProvider` and normalize the key in JSON file.
+
+## FormatSchema
+
+To convert JSON key and value at the same time, you can create `FormatSchemaProvider`. 
+
+You should define every option you need and create the template to convert JSON value data. 
+
+You can refer to [format_schema_test.go](format_schema_test.go) for details to create `FormatProvider` and normalize the key and value data JSON file.
+
