@@ -1,22 +1,22 @@
 {
   "name": "gojson",
   "version": "1.0.0",
-  "description": "Toolkits for golang to process JSON schema.",
+  "description": "Normalize JSON key/value with template.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Grivn/gojson.git"
+    "url": "git+https://github.com/Grivn/njson.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/Grivn/gojson/issues"
+    "url": "https://github.com/Grivn/njson/issues"
   },
-  "homepage": "https://github.com/Grivn/gojson#readme",
+  "homepage": "https://github.com/Grivn/njson#readme",
   "devDependencies": {
     "cz-conventional-changelog": "^3.3.0"
   },
