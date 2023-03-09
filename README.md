@@ -77,7 +77,9 @@ Each key should be normalized by every `FormatFunc` created from key-options.
 The data-options are used to normalize the JSON values.
 You should create a `template` to make statements about which function should be taken to normalize specific key's value. 
 
-You can create key-options and value-options with methods `normalizejson.FormatKeyOption` and `normalizejson.FormatDataOption`.
+You can create key-options and value-options with provided methods:
+- `normalizejson.FormatKeyOption` to create a key-option.
+- `normalizejson.FormatDataOption` to create a data-option.
 
 Here's an example to initiate provider with options.
 
@@ -189,20 +191,28 @@ The key-value in template show that the value in JSON document for current key s
 
     E.g.`{"data":{"description":"to_string"}}` 
 
-    It means the value of `data.description` in JSON file should be processed by `FormatFunc` from data-options whose name is `to_string`.
+    It means the value of `data.description` in JSON file should be processed by `FormatFunc` from data-options named `to_string`.
+    
+    As we have initiated before, the function named 'to_string' is `FormatDataToString`. 
+    
+    The `provider` will invoke it to process `data.decription` to convert the value. 
 
-There is a builtin style function name `__template.{{template_name}}`, which means we will process the value with template of `{{template_name}}`. 
+There is a builtin-function `__template.{{template_name}}`, which means we should process the value with template called `{{template_name}}`. 
 
     E.g. `{"sub_data":{"sub_data_list":"__template.sub_data_list"}}` 
     
-    It means the value of `sub_data.sub_data_list` should be processed by template `sub_data_list`.
+    It means the value of `sub_data.sub_data_list` should be processed by `sub_data_list` template.
 
 In addition, the statement like `["{{function_name}}"]` is used to describe the array structure in JSON document.
 Each value in this array should be processed by function of `{{function_name}}`. 
 
-    E.g. `{"sub_data_list":["__template.sub_data"]}` means the `sub_data_list` is an array of `sub_data`.
+    E.g. `{"sub_data_list":["__template.sub_data"]}` means the `sub_data_list` is an array.
     
-    And we should process each value of it with the `sub_data` template. 
+    Then, each value of the array should be processed by function called '__template.sub_data'.
+    
+    This is a builtin-function relayed to `sub_data` template. 
+    
+    It means that we should normalize each value of `sub_data_list` array with the `sub_data` template. 
 
 To initiate the provider with `template`. 
 
@@ -303,7 +313,7 @@ var FormatKeyOptions = []normalizejson.FormatOption{
 	normalizejson.FormatKeyOption(FormatCamelToSnake, FormatKeyCamelToSnake),
 }
 
-var regexCamelCaseJSONKey = regexp.MustCompile(`\"(\w+)\":`)
+var regexCamelCaseJSONKey = regexp.MustCompile(`(\w)([A-Z])`) // camel-case style
 
 func FormatKeyCamelToSnake(item interface{}) (interface{}, error) {
 	str, ok := item.(string)
