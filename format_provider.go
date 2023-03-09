@@ -1,11 +1,4 @@
-package gojson
-
-type FormatProvider interface {
-	AddOptions(options ...FormatOption)
-	UpdateTemplate(rawTemplate []byte) error
-	FormatJSONSchema(data []byte) ([]byte, error)
-	Reset()
-}
+package njson
 
 func NewFormatSchemaProvider(rawTemplate []byte, options ...FormatOption) (FormatProvider, error) {
 	return newFormatSchemaImpl(rawTemplate, options...)

@@ -1,9 +1,9 @@
-package gojson
+package njson
 
 import (
 	"strings"
 
-	"github.com/Grivn/gojson/regex"
+	"github.com/Grivn/njson/regex"
 	"github.com/spf13/cast"
 )
 

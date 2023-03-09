@@ -1,31 +1,62 @@
-# GoJSON
-Normalize the key and value in JSON schema to specific type.
+# NJSON
 
-## Prepare
+<a href="https://godoc.org/github.com/Grivn/njson"><img src="https://img.shields.io/badge/api-reference-pink.svg?style=flat-square" alt="GoDoc"></a>
+
+NJSON is a Go package that provides a simple way to normalize the key/value in a JSON documents with a template.
+
+This README is a quick overview of how to use NJSON. 
+
+## Getting Started
+
+### Installing
 
 ```shell
-go get github.com/Grivn/gojson@latest
+go get -u github.com/Grivn/njson@latest
 ```
 
-## Camel-Case & Snake-Case
+go version >= 1.18
 
-You can convert the JSON schema between camel-case and snake-case as below.
+### Create Provider
 
-- `JSONSchemaCamel2Snake` converts JSON schema from camel-case to snake-case.
-- `JSONSchemaSnake2Camel` converts JSON schema from snake-case to camel-case.
-
-## FormatData
-
-You can convert the JSON schema as below.
+To take use of NJSON, you should create a `FormatProvider`.
 
 ```go
 package main
+
+import (
+	"fmt"
+	"github.com/Grivn/njson"
+)
+
+func main() {
+	provider, err := njson.NewFormatProvider(nil)
+	if err != nil {
+		panic(fmt.Errorf("[EXAMPLE] create NJSON provider failed: %s", err))
+	}
+	provider.Reset()
+}
+```
+
+### Initiate Provider
+
+Then, you should initiate the provider with `options` and `template`.
+
+#### Options
+
+The `options` will be used to normalize the key/value in JSON documents.
+
+```go
+package njson
+
 type FormatFuncType string
+
 const (
 	FormatFuncFormatData FormatFuncType = "format_function_type_format_data" // default type
 	FormatFuncFormatKey                 = "format_function_type_format_key"
 )
+
 type FormatFunc func(item interface{}) (interface{}, error)
+
 type FormatOption struct {
 	FunctionType   FormatFuncType
 	FunctionName   string
@@ -33,100 +64,117 @@ type FormatOption struct {
 }
 ```
 
-The `FormatFunc` is used to convert JSON schema and the `FormatOption` has defined the name of each format_function. 
-To convert the data values of JSON schema, we should define the `FormatFuncType` as `FormatFuncFormatData`. 
+For each option, you should assign a `FormatFunc` in it.
+This function will be used to normalize the key or value in JSON documents.
 
-For instance, there is a source JSON file as below.
+There are two types of options in NJSON:
+- `njson.FormatFuncFormatKey` (key-option)
+- `njson.FormatFuncFormatData` (data-option)
 
-```json
-{
-  "data": {
-    "description": 1024,
-    "id": "2",
-    "rate": "2.3",
-    "sub_data_list": [
-      {
-        "item1": 12,
-        "item2": "1.30",
-        "sub_data_list": [
-          {
-            "item1": "3",
-            "item2": "1.70",
-            "item3": "2",
-            "item4": 1.2,
-            "item5": "exist",
-            "type": "child"
-          }
-        ],
-        "type": "parent"
-      },
-      {
-        "item1": "2",
-        "item2": "1.40",
-        "item3": "3",
-        "item4": "1.2000",
-        "item5": "",
-        "type": "child"
-      }
-    ]
-  }
-}
-```
+The key-options are used to normalize the JSON keys.
+Each key should be normalized by every `FormatFunc` created from key-options.
 
-Then we try to normalize the source JSON file to the standard schema.
+The data-options are used to normalize the JSON values.
+You should create a `template` to make statements about which function should be taken to normalize specific key's value. 
+
+You can create key-options and value-options with methods `njson.FormatKeyOption` and `njson.FormatDataOption`.
+
+Here's an example to initiate provider with options.
+
+- To create key-options.
 
 ```go
-type Schema struct {
-	Data Data `json:"data"`
+var FormatKeyOptions = []njson.FormatOption{
+	njson.FormatKeyOption(FormatCamelToSnake, FormatKeyCamelToSnake),
 }
 
-type Data struct {
-	ID          string      `json:"id"`
-	Description string      `json:"description"`
-	Rate        float64     `json:"rate"`
-	SubDataList SubDataList `json:"sub_data_list"`
-}
+var regexCamelCaseJSONKey = regexp.MustCompile(`\"(\w+)\":`)
 
-type SubDataList []SubData
-type SubData struct {
-	Type        string      `json:"type"`
-	Item1       int         `json:"item1"`
-	Item2       string      `json:"item2"`
-	Item3       string      `json:"item3,omitempty"`
-	Item4       float64     `json:"item4,omitempty"`
-	Item5       string      `json:"item5,omitempty"`
-	SubDataList SubDataList `json:"sub_data_list,omitempty"`
+func FormatKeyCamelToSnake(item interface{}) (interface{}, error) {
+	str, ok := item.(string)
+	if !ok {
+		return item, nil
+	}
+	return strings.ToLower(regexCamelCaseJSONKey.ReplaceAllString(str, `${1}_${2}`)), nil
 }
 ```
 
-Here, we need to convert that
-`data.id` to string,
-`sub_data.item1` to number,
-`sub_data.item3` to string,
-`sub_data.item4` to float,
-`sub_data.item5` to another format of string.
-And the components in JSON might be nested, such as `sub_data_list` in `sub_data`.
+- To create data-options.
 
-So that, we need to create template and create `FormatDataProvider` with options for `FormatFunc`.
+```go
+var FormatDataOptions = []njson.FormatOption{
+	njson.FormatDataOption(FormatToInt64, FormatDataToInt64),
+	njson.FormatDataOption(FormatToFloat64, FormatDataToFloat64), 
+	njson.FormatDataOption(FormatToString, FormatDataToString), 
+	njson.FormatDataOption(FormatToBool, FormatDataToBool),
+}
 
-The example template is as following.
-The values `int_to_string/float_to_string/string_to_int/string_to_float` refer to the names of `format_function` created by options.
-The values `__template.id/__template.sub_data_list/__template.sub_data` refer to the structure of current JSON schema. 
+const (
+	FormatToInt64   = "to_int64"
+	FormatToFloat64 = "to_float64"
+	FormatToString  = "to_string"
+	FormatToBool    = "to_bool"
+)
+
+func FormatDataToString(item interface{}) (interface{}, error) {
+	return cast.ToStringE(item)
+}
+
+func FormatDataToInt64(item interface{}) (interface{}, error) {
+	return cast.ToInt64E(item)
+}
+
+func FormatDataToFloat64(item interface{}) (interface{}, error) {
+	return cast.ToFloat64E(item)
+}
+
+func FormatDataToBool(item interface{}) (interface{}, error) {
+	return cast.ToBoolE(item)
+}
+```
+
+- To initiate provider. 
+
+```go
+package main
+
+func main() {
+	...
+
+	options := append(FormatKeyOptions, FormatDataOptions...)
+	provider.AddOptions(options...)
+}
+```
+
+#### Template
+
+To normalize the values in JSON document, you should create a template to state the function to use.
+
+For example, to normalize [input.json](example/input.json) towards [output.json](example/output.json), you should create a template file [config.json](example/config.json). 
+
+input.json
+
+    {"data":{"description":1024,"id":"2","rate":"2.3","sub_data_list":[{"item1":12,"item2":"1.30","sub_data_list":[{"item1":"3","item2":"1.70","item3":"2","item4":1.2,"item5":"exist","type":"child"}],"type":"parent"},{"item1":"2","item2":"1.40","item3":"3","item4":"1.2000","item5":"","type":"child"}]}}
+
+output.json
+
+    {"data":{"description":"1024","id":"2","rate":2.3,"sub_data_list":[{"item1":12,"item2":"1.30","sub_data_list":[{"item1":3,"item2":"1.70","item3":"2","item4":1.2,"item5":"exist","type":"child"}],"type":"parent"},{"item1":2,"item2":"1.40","item3":"3","item4":1.2,"item5":"","type":"child"}]}}
+
+config.json
 
 ```json
 {
   "data": {
-    "description": "int_to_string",
+    "description": "to_string",
     "id": "__template.id",
-    "rate": "string_to_float",
+    "rate": "to_float64",
     "sub_data_list": "__template.sub_data_list"
   },
-  "id": "int_to_string",
+  "id": "to_string",
   "sub_data": {
-    "item1": "string_to_int",
-    "item3": "float_to_string",
-    "item4": "string_to_float",
-    "item5": "nil_string_to_blank",
+    "item1": "to_int64",
+    "item3": "to_string",
+    "item4": "to_float64",
     "sub_data_list": "__template.sub_data_list"
   },
   "sub_data_list": [
@@ -135,117 +183,114 @@ The values `__template.id/__template.sub_data_list/__template.sub_data` refer to
 }
 ```
 
-The default `FormatFunc` options are as follows.
+This template file has defined 4 templates `data`, `id`, `sub_data`, and `sub_data_list`. 
+
+The key-value in template show that the value in JSON document for current key should be processed by this format function.
+
+    E.g.`{"data":{"description":"to_string"}}` 
+
+    It means the value of `data.description` in JSON file should be processed by `FormatFunc` from data-options whose name is `to_string`.
+
+There is a builtin style function name `__template.{{template_name}}`, which means we will process the value with template of `{{template_name}}`. 
+
+    E.g. `{"sub_data":{"sub_data_list":"__template.sub_data_list"}}` 
+    
+    It means the value of `sub_data.sub_data_list` should be processed by template `sub_data_list`.
+
+In addition, the statement like `["{{function_name}}"]` is used to describe the array structure in JSON document.
+Each value in this array should be processed by function of `{{function_name}}`. 
+
+    E.g. `{"sub_data_list":["__template.sub_data"]}` means the `sub_data_list` is an array of `sub_data`.
+    And we should process each value of it with the `sub_data` template. 
+
+To initiate the provider with `template`. 
 
 ```go
-func FormatDataOption(funcName string, formatFunc FormatFunc) FormatOption {
-	return FormatOption{
-		FunctionType:   FormatFuncFormatData,
-		FunctionName:   funcName,
-		FormatFunction: formatFunc,
+func main() {
+	...
+	
+	if err = provider.UpdateTemplate(template); err != nil {
+		panic(err)
 	}
-}
-
-const (
-	FormatIntToString   = "int_to_string"
-	FormatFloatToString = "float_to_string"
-	FormatStringToInt   = "string_to_int"
-	FormatStringToFloat = "string_to_float"
-)
-
-func FormatDataIntToString(item interface{}) (interface{}, error) {
-	float64ID, ok := item.(float64)
-	if ok {
-		int64ID, err := ameda.Float64ToInt64(float64ID)
-		if err != nil {
-			return item, err
-		}
-		return ameda.Int64ToString(int64ID), nil
-	}
-	return item, nil
-}
-
-func FormatDataFloatToString(item interface{}) (interface{}, error) {
-	float64ID, ok := item.(float64)
-	if ok {
-		return ameda.Float64ToString(float64ID), nil
-	}
-	return item, nil
-}
-
-func FormatDataStringToInt(item interface{}) (interface{}, error) {
-	str, ok := item.(string)
-	if !ok {
-		return item, nil
-	}
-	if str == "" {
-		return 0, nil
-	}
-	intValue, err := ameda.StringToInt64(str)
-	if err != nil {
-		return item, err
-	}
-	return intValue, nil
-}
-
-func FormatDataStringToFloat(item interface{}) (interface{}, error) {
-	str, ok := item.(string)
-	if !ok {
-		return item, nil
-	}
-	if str == "" {
-		return float64(0), nil
-	}
-	floatValue, err := ameda.StringToFloat64(str)
-	if err != nil {
-		return item, err
-	}
-	return floatValue, nil
 }
 ```
 
+### Normalize JSON Schema
+
+To normalize the JSON schema, just input the raw JSON document into `FormatJSONSchema`, then you can get the normalizedJSON. 
+
 ```go
-var DefaultFormatDataOptions = []FormatOption{
-	FormatDataOption(FormatIntToString, FormatDataIntToString),
-	FormatDataOption(FormatFloatToString, FormatDataFloatToString),
-	FormatDataOption(FormatStringToInt, FormatDataStringToInt),
-	FormatDataOption(FormatStringToFloat, FormatDataStringToFloat),
+func main() {
+	...
+	
+	formattedJSON, err := provider.FormatJSONSchema(source)
+	if err != nil {
+		panic(err)
+	}
 }
 ```
 
-In addition, you can create your own `FormatFunc` and add it into `FormatDataProvider` with `AddOptions` 
-to implement your own method to normalize the JSON schema for designated part.
+## Example
 
-You can refer to [format_data_test.go](format_data_test.go) for details to create `FormatProvider` and normalize the value data in JSON file.
-
-## FormatKey
-
-You can convert the key in JSON schema as below.
+You can take the [example](example) for details to use NJSON. 
+It takes [template](example/config.json) to normalize the [input.json](example/input.json) to [output.json](example/output.json). 
 
 ```go
 package main
-type FormatFuncType string
-const (
-	FormatFuncFormatData FormatFuncType = "format_function_type_format_data" // default type
-	FormatFuncFormatKey                 = "format_function_type_format_key"
+
+import (
+	"bytes"
+	"encoding/json"
+	"fmt"
+	"os"
+	"regexp"
+	"strings"
+
+	"github.com/Grivn/njson"
+	"github.com/spf13/cast"
 )
-type FormatFunc func(item interface{}) (interface{}, error)
-type FormatOption struct {
-	FunctionType   FormatFuncType
-	FunctionName   string
-	FormatFunction FormatFunc
-}
-```
 
-The `FormatOption` has defined the method to convert JSON key.
-To convert JSON key, we need to define the `FormatFuncType` as `FormatFuncFormatKey`. 
+func main() {
+	provider, err := njson.NewFormatProvider(nil)
+	if err != nil {
+		panic(fmt.Errorf("[EXAMPLE] create NJSON provider failed: %s", err))
+	}
 
-```go
-func FormatKeyOption(funcName string, formatFunc FormatFunc) FormatOption {
-	return FormatOption{
-		FunctionType:   FormatFuncFormatKey,
-		FunctionName:   funcName,
-		FormatFunction: formatFunc,
+	provider.Reset()
+
+	options := append(FormatKeyOptions, FormatDataOptions...)
+	provider.AddOptions(options...)
+
+	source, err := os.ReadFile("input.json")
+	if err != nil {
+		panic(err)
+	}
+
+	template, err := os.ReadFile("config.json")
+	if err != nil {
+		panic(err)
+	}
+
+	if err = provider.UpdateTemplate(template); err != nil {
+		panic(err)
+	}
+
+	formattedJSON, err := provider.FormatJSONSchema(source)
+	if err != nil {
+		panic(err)
+	}
+
+	if _, err = os.Create("output.json"); err != nil {
+		panic(err)
+	}
+
+	var buf bytes.Buffer
+	if err = json.Indent(&buf, formattedJSON, "", "  "); err != nil {
+		panic(err)
+	}
+
+	if err = os.WriteFile("output.json", buf.Bytes(), 0777); err != nil {
+		panic(err)
 	}
 }
 
@@ -253,28 +298,72 @@ const (
 	FormatCamelToSnake = "camel_to_snake"
 )
 
+var FormatKeyOptions = []njson.FormatOption{
+	njson.FormatKeyOption(FormatCamelToSnake, FormatKeyCamelToSnake),
+}
+
+var regexCamelCaseJSONKey = regexp.MustCompile(`\"(\w+)\":`)
+
 func FormatKeyCamelToSnake(item interface{}) (interface{}, error) {
 	str, ok := item.(string)
 	if !ok {
 		return item, nil
 	}
-	return strings.ToLower(regex.CamelCase.ReplaceAllString(str, `${1}_${2}`)), nil
+	return strings.ToLower(regexCamelCaseJSONKey.ReplaceAllString(str, `${1}_${2}`)), nil
+}
+
+var FormatDataOptions = []njson.FormatOption{
+	njson.FormatDataOption(FormatToInt64, FormatDataToInt64),
+	njson.FormatDataOption(FormatToFloat64, FormatDataToFloat64),
+	njson.FormatDataOption(FormatToString, FormatDataToString),
+	njson.FormatDataOption(FormatToBool, FormatDataToBool),
+}
+
+const (
+	FormatToInt64   = "to_int64"
+	FormatToFloat64 = "to_float64"
+	FormatToString  = "to_string"
+	FormatToBool    = "to_bool"
+)
+
+func FormatDataToString(item interface{}) (interface{}, error) {
+	return cast.ToStringE(item)
+}
+
+func FormatDataToInt64(item interface{}) (interface{}, error) {
+	return cast.ToInt64E(item)
+}
+
+func FormatDataToFloat64(item interface{}) (interface{}, error) {
+	return cast.ToFloat64E(item)
+}
+
+func FormatDataToBool(item interface{}) (interface{}, error) {
+	return cast.ToBoolE(item)
+}
+
+func printJSON(raw []byte) {
+	fmt.Println(string(formatJSON(raw)))
+}
+
+func formatJSON(raw []byte) []byte {
+	formattedJSON, _ := removeJSONBlankAndBreak(raw)
+	return formattedJSON
+}
+
+func removeJSONBlankAndBreak(raw []byte) ([]byte, error) {
+	var item interface{}
+	if err := json.Unmarshal(raw, &item); err != nil {
+		return nil, err
+	}
+	return json.Marshal(item)
 }
 ```
 
-```go
-var option = FormatKeyOption(FormatSnakeToCamel, FormatKeySnakeToCamel)
-```
+input.json
 
-When `FormatKeyProvider` converts the JSON key, it tries to invoke each `FormatFunc` from options to convert found JSON key.
+    {"data":{"description":1024,"id":"2","rate":"2.3","sub_data_list":[{"item1":12,"item2":"1.30","sub_data_list":[{"item1":"3","item2":"1.70","item3":"2","item4":1.2,"item5":"exist","type":"child"}],"type":"parent"},{"item1":"2","item2":"1.40","item3":"3","item4":"1.2000","item5":"","type":"child"}]}}
 
-You can refer to [format_key_test.go](format_key_test.go) for details to create `FormatProvider` and normalize the key in JSON file.
+config.json
 
-## FormatSchema
-
-To convert JSON key and value at the same time, you can create `FormatSchemaProvider`. 
-
-You should define every option you need and create the template to convert JSON value data. 
-
-You can refer to [format_schema_test.go](format_schema_test.go) for details to create `FormatProvider` and normalize the key and value data JSON file.
-
+    {"data":{"description":"to_string","id":"__template.id","rate":"to_float64","sub_data_list":"__template.sub_data_list"},"id":"to_string","sub_data":{"item1":"to_int64","item3":"to_string","item4":"to_float64","sub_data_list":"__template.sub_data_list"},"sub_data_list":["__template.sub_data"]}

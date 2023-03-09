@@ -1,11 +1,11 @@
-package gojson
+package njson
 
 import (
 	"bytes"
 	"strings"
 	"unicode"
 
-	"github.com/Grivn/gojson/regex"
+	"github.com/Grivn/njson/regex"
 )
 
 func JSONSchemaCamel2Snake(data []byte) []byte {
