@@ -18,7 +18,7 @@ go version >= 1.18
 
 ### Create Provider
 
-To take use of NormalizeJSON, you should create a `FormatProvider`.
+To take use of NormalizeJSON, you should create a provider `FormatProvider`.
 
 ```go
 package main
@@ -83,7 +83,7 @@ You can create key-options and value-options with provided methods:
 
 Here's an example to initiate provider with options.
 
-- To create key-options.
+- To create key-options. (convert JSON keys from camel-case to snake-case)
 
 ```go
 var FormatKeyOptions = []normalizejson.FormatOption{
@@ -101,7 +101,7 @@ func FormatKeyCamelToSnake(item interface{}) (interface{}, error) {
 }
 ```
 
-- To create data-options.
+- To create data-options. (functions named 'to_string', 'to_int64', 'to_float64', 'to_bool' to normalize JSON values)
 
 ```go
 var FormatDataOptions = []normalizejson.FormatOption{
@@ -150,9 +150,17 @@ func main() {
 
 #### Template
 
-To normalize the values in JSON document, you should create a template to state the function to use.
+To normalize the values in JSON document, you should create a `template` to state the function to use.
 
-For example, to normalize [input.json](example/input.json) towards [output.json](example/output.json), you should create a template file [config.json](example/config.json). 
+- Attention Please
+
+	If you have initiated a provider with both key-option and data-option, we will normalize the key at first. 
+	
+	It means that we will take the normalized key to find the value to process and the `FormatFunc` to invoke. 
+	
+	So that, you should define the `template` with the expected key after the normalization. 
+
+For example, the `provider`'s options have been initiated according to example in the previous part. To normalize [input.json](example/input.json) to [output.json](example/output.json), you should create a template file [config.json](example/config.json). Here, we should convert the JSON key from camel-case to snake-case and format the values to the expected data type, such as `int64` to `string`. 
 
 input.json
 
@@ -161,6 +169,8 @@ input.json
 output.json
 
     {"data":{"description":"1024","id":"2","rate":2.3,"sub_data_list":[{"item1":12,"item2":"1.30","sub_data_list":[{"item1":3,"item2":"1.70","item3":"2","item4":1.2,"item5":"exist","type":"child"}],"type":"parent"},{"item1":2,"item2":"1.40","item3":"3","item4":1.2,"item5":"","type":"child"}]}}
+
+In our `template`, we have defined the function to be invoked for specific key's value. 
 
 config.json
 
@@ -187,7 +197,7 @@ config.json
 
 This template file has defined 4 templates `data`, `id`, `sub_data`, and `sub_data_list`. 
 
-The key-value in template show that the value in JSON document for current key should be processed by this format function.
+The `{"key":"value"}` in template show that we should process the `key`'s value in JSON document with the `FormatFunc` named `value`. 
 
     E.g.`{"data":{"description":"to_string"}}` 
 
@@ -197,14 +207,14 @@ The key-value in template show that the value in JSON document for current key s
     
     The `provider` will invoke it to process `data.decription` to convert the value. 
 
-There is a builtin-function `__template.{{template_name}}`, which means we should process the value with template called `{{template_name}}`. 
+There is a builtin-function `__template.{{template_name}}`. It means we should process the JSON value with template called `{{template_name}}`. 
 
     E.g. `{"sub_data":{"sub_data_list":"__template.sub_data_list"}}` 
     
     It means the value of `sub_data.sub_data_list` should be processed by `sub_data_list` template.
 
-In addition, the statement like `["{{function_name}}"]` is used to describe the array structure in JSON document.
-Each value in this array should be processed by function of `{{function_name}}`. 
+In addition, the statement in `template` like `["{{function_name}}"]` is used to describe the array structure in JSON schema.
+Each value in this array should be normalized by function called `{{function_name}}`. 
 
     E.g. `{"sub_data_list":["__template.sub_data"]}` means the `sub_data_list` is an array.
     
@@ -244,7 +254,7 @@ func main() {
 ## Example
 
 You can take the [example](example) for details to use NormalizeJSON. 
-It takes [template](example/config.json) to normalize the [input.json](example/input.json) to [output.json](example/output.json). 
+It normalizes the [input.json](example/input.json) to [output.json](example/output.json) with [template](example/config.json). 
 
 ```go
 package main
