@@ -54,7 +54,6 @@ func main() {
 	if err = os.WriteFile("output.json", buf.Bytes(), 0777); err != nil {
 		panic(err)
 	}
-	printJSON(source)
 }
 
 const (
