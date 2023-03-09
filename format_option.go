@@ -1,9 +1,9 @@
-package njson
+package normalizejson
 
 import (
 	"strings"
 
-	"github.com/Grivn/njson/regex"
+	"github.com/Grivn/normalizejson/regex"
 	"github.com/spf13/cast"
 )
 

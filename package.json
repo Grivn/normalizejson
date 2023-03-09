@@ -8,15 +8,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Grivn/njson.git"
+    "url": "git+https://github.com/Grivn/normalizejson.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/Grivn/njson/issues"
+    "url": "https://github.com/Grivn/normalizejson/issues"
   },
-  "homepage": "https://github.com/Grivn/njson#readme",
+  "homepage": "https://github.com/Grivn/normalizejson#readme",
   "devDependencies": {
     "cz-conventional-changelog": "^3.3.0"
   },

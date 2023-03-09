@@ -1,4 +1,4 @@
-package njson
+package normalizejson
 
 import (
 	"encoding/json"

@@ -1,11 +1,11 @@
-package njson
+package normalizejson
 
 import (
 	"bytes"
 	"strings"
 	"unicode"
 
-	"github.com/Grivn/njson/regex"
+	"github.com/Grivn/normalizejson/regex"
 )
 
 func JSONSchemaCamel2Snake(data []byte) []byte {

@@ -1,4 +1,4 @@
-module github.com/Grivn/njson
+module github.com/Grivn/normalizejson
 
 require (
 	github.com/spf13/cast v1.5.0

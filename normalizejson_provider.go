@@ -1,4 +1,4 @@
-package njson
+package normalizejson
 
 type FormatProvider interface {
 	AddOptions(options ...FormatOption)
