@@ -8,14 +8,14 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/Grivn/njson"
+	"github.com/Grivn/normalizejson"
 	"github.com/spf13/cast"
 )
 
 func main() {
-	provider, err := njson.NewFormatProvider(nil)
+	provider, err := normalizejson.NewFormatProvider(nil)
 	if err != nil {
-		panic(fmt.Errorf("[EXAMPLE] create NJSON provider failed: %s", err))
+		panic(fmt.Errorf("[EXAMPLE] create normalizejson provider failed: %s", err))
 	}
 
 	provider.Reset()
@@ -60,8 +60,8 @@ const (
 	FormatCamelToSnake = "camel_to_snake"
 )
 
-var FormatKeyOptions = []njson.FormatOption{
-	njson.FormatKeyOption(FormatCamelToSnake, FormatKeyCamelToSnake),
+var FormatKeyOptions = []normalizejson.FormatOption{
+	normalizejson.FormatKeyOption(FormatCamelToSnake, FormatKeyCamelToSnake),
 }
 
 var regexCamelCaseJSONKey = regexp.MustCompile(`\"(\w+)\":`)
@@ -74,11 +74,11 @@ func FormatKeyCamelToSnake(item interface{}) (interface{}, error) {
 	return strings.ToLower(regexCamelCaseJSONKey.ReplaceAllString(str, `${1}_${2}`)), nil
 }
 
-var FormatDataOptions = []njson.FormatOption{
-	njson.FormatDataOption(FormatToInt64, FormatDataToInt64),
-	njson.FormatDataOption(FormatToFloat64, FormatDataToFloat64),
-	njson.FormatDataOption(FormatToString, FormatDataToString),
-	njson.FormatDataOption(FormatToBool, FormatDataToBool),
+var FormatDataOptions = []normalizejson.FormatOption{
+	normalizejson.FormatDataOption(FormatToInt64, FormatDataToInt64),
+	normalizejson.FormatDataOption(FormatToFloat64, FormatDataToFloat64),
+	normalizejson.FormatDataOption(FormatToString, FormatDataToString),
+	normalizejson.FormatDataOption(FormatToBool, FormatDataToBool),
 }
 
 const (

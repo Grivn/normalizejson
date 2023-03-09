@@ -1,37 +1,37 @@
-# NJSON
+# NormalizeJSON
 
-<a href="https://godoc.org/github.com/Grivn/njson"><img src="https://img.shields.io/badge/api-reference-pink.svg?style=flat-square" alt="GoDoc"></a>
+<a href="https://godoc.org/github.com/Grivn/normalizejson"><img src="https://img.shields.io/badge/api-reference-pink.svg?style=flat-square" alt="GoDoc"></a>
 
-NJSON is a Go package that provides a simple way to normalize the key/value in a JSON documents with a template.
+NormalizeJSON is a Go package that provides a simple way to normalize the key/value in a JSON documents with a template.
 
-This README is a quick overview of how to use NJSON. 
+This README is a quick overview of how to use NormalizeJSON. 
 
 ## Getting Started
 
 ### Installing
 
 ```shell
-go get -u github.com/Grivn/njson@latest
+go get -u github.com/Grivn/normalizejson@latest
 ```
 
 go version >= 1.18
 
 ### Create Provider
 
-To take use of NJSON, you should create a `FormatProvider`.
+To take use of NormalizeJSON, you should create a `FormatProvider`.
 
 ```go
 package main
 
 import (
 	"fmt"
-	"github.com/Grivn/njson"
+	"github.com/Grivn/normalizejson"
 )
 
 func main() {
-	provider, err := njson.NewFormatProvider(nil)
+	provider, err := normalizejson.NewFormatProvider(nil)
 	if err != nil {
-		panic(fmt.Errorf("[EXAMPLE] create NJSON provider failed: %s", err))
+		panic(fmt.Errorf("[EXAMPLE] create normalizejson provider failed: %s", err))
 	}
 	provider.Reset()
 }
@@ -46,7 +46,7 @@ Then, you should initiate the provider with `options` and `template`.
 The `options` will be used to normalize the key/value in JSON documents.
 
 ```go
-package njson
+package normalizejson
 
 type FormatFuncType string
 
@@ -67,9 +67,9 @@ type FormatOption struct {
 For each option, you should assign a `FormatFunc` in it.
 This function will be used to normalize the key or value in JSON documents.
 
-There are two types of options in NJSON:
-- `njson.FormatFuncFormatKey` (key-option)
-- `njson.FormatFuncFormatData` (data-option)
+There are two types of options in NormalizeJSON:
+- `normalizejson.FormatFuncFormatKey` (key-option)
+- `normalizejson.FormatFuncFormatData` (data-option)
 
 The key-options are used to normalize the JSON keys.
 Each key should be normalized by every `FormatFunc` created from key-options.
@@ -77,15 +77,15 @@ Each key should be normalized by every `FormatFunc` created from key-options.
 The data-options are used to normalize the JSON values.
 You should create a `template` to make statements about which function should be taken to normalize specific key's value. 
 
-You can create key-options and value-options with methods `njson.FormatKeyOption` and `njson.FormatDataOption`.
+You can create key-options and value-options with methods `normalizejson.FormatKeyOption` and `normalizejson.FormatDataOption`.
 
 Here's an example to initiate provider with options.
 
 - To create key-options.
 
 ```go
-var FormatKeyOptions = []njson.FormatOption{
-	njson.FormatKeyOption(FormatCamelToSnake, FormatKeyCamelToSnake),
+var FormatKeyOptions = []normalizejson.FormatOption{
+	normalizejson.FormatKeyOption(FormatCamelToSnake, FormatKeyCamelToSnake),
 }
 
 var regexCamelCaseJSONKey = regexp.MustCompile(`\"(\w+)\":`)
@@ -102,11 +102,11 @@ func FormatKeyCamelToSnake(item interface{}) (interface{}, error) {
 - To create data-options.
 
 ```go
-var FormatDataOptions = []njson.FormatOption{
-	njson.FormatDataOption(FormatToInt64, FormatDataToInt64),
-	njson.FormatDataOption(FormatToFloat64, FormatDataToFloat64), 
-	njson.FormatDataOption(FormatToString, FormatDataToString), 
-	njson.FormatDataOption(FormatToBool, FormatDataToBool),
+var FormatDataOptions = []normalizejson.FormatOption{
+	normalizejson.FormatDataOption(FormatToInt64, FormatDataToInt64),
+	normalizejson.FormatDataOption(FormatToFloat64, FormatDataToFloat64), 
+	normalizejson.FormatDataOption(FormatToString, FormatDataToString), 
+	normalizejson.FormatDataOption(FormatToBool, FormatDataToBool),
 }
 
 const (
@@ -232,7 +232,7 @@ func main() {
 
 ## Example
 
-You can take the [example](example) for details to use NJSON. 
+You can take the [example](example) for details to use NormalizeJSON. 
 It takes [template](example/config.json) to normalize the [input.json](example/input.json) to [output.json](example/output.json). 
 
 ```go
@@ -246,14 +246,14 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/Grivn/njson"
+	"github.com/Grivn/normalizejson"
 	"github.com/spf13/cast"
 )
 
 func main() {
-	provider, err := njson.NewFormatProvider(nil)
+	provider, err := normalizejson.NewFormatProvider(nil)
 	if err != nil {
-		panic(fmt.Errorf("[EXAMPLE] create NJSON provider failed: %s", err))
+		panic(fmt.Errorf("[EXAMPLE] create normalizejson provider failed: %s", err))
 	}
 
 	provider.Reset()
@@ -298,8 +298,8 @@ const (
 	FormatCamelToSnake = "camel_to_snake"
 )
 
-var FormatKeyOptions = []njson.FormatOption{
-	njson.FormatKeyOption(FormatCamelToSnake, FormatKeyCamelToSnake),
+var FormatKeyOptions = []normalizejson.FormatOption{
+	normalizejson.FormatKeyOption(FormatCamelToSnake, FormatKeyCamelToSnake),
 }
 
 var regexCamelCaseJSONKey = regexp.MustCompile(`\"(\w+)\":`)
@@ -312,11 +312,11 @@ func FormatKeyCamelToSnake(item interface{}) (interface{}, error) {
 	return strings.ToLower(regexCamelCaseJSONKey.ReplaceAllString(str, `${1}_${2}`)), nil
 }
 
-var FormatDataOptions = []njson.FormatOption{
-	njson.FormatDataOption(FormatToInt64, FormatDataToInt64),
-	njson.FormatDataOption(FormatToFloat64, FormatDataToFloat64),
-	njson.FormatDataOption(FormatToString, FormatDataToString),
-	njson.FormatDataOption(FormatToBool, FormatDataToBool),
+var FormatDataOptions = []normalizejson.FormatOption{
+	normalizejson.FormatDataOption(FormatToInt64, FormatDataToInt64),
+	normalizejson.FormatDataOption(FormatToFloat64, FormatDataToFloat64),
+	normalizejson.FormatDataOption(FormatToString, FormatDataToString),
+	normalizejson.FormatDataOption(FormatToBool, FormatDataToBool),
 }
 
 const (

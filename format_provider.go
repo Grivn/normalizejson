@@ -1,4 +1,4 @@
-package njson
+package normalizejson
 
 func NewFormatSchemaProvider(rawTemplate []byte, options ...FormatOption) (FormatProvider, error) {
 	return newFormatSchemaImpl(rawTemplate, options...)
