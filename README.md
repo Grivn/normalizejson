@@ -367,3 +367,7 @@ input.json
 config.json
 
     {"data":{"description":"to_string","id":"__template.id","rate":"to_float64","sub_data_list":"__template.sub_data_list"},"id":"to_string","sub_data":{"item1":"to_int64","item3":"to_string","item4":"to_float64","sub_data_list":"__template.sub_data_list"},"sub_data_list":["__template.sub_data"]}
+
+## TOOLs
+
+You can refer to [Toolkits](TOOLKITs.md) to find some useful toolkits to process JSON schema. 
