@@ -4,7 +4,7 @@ import (
 	"strings"
 
 	"github.com/Grivn/gojson/regex"
-	"github.com/andeya/ameda"
+	"github.com/spf13/cast"
 )
 
 type FormatFuncType string
@@ -39,70 +39,36 @@ func FormatKeyOption(funcName string, formatFunc FormatFunc) FormatOption {
 }
 
 const (
-	FormatIntToString   = "int_to_string"
-	FormatFloatToString = "float_to_string"
-	FormatStringToInt   = "string_to_int"
-	FormatStringToFloat = "string_to_float"
+	FormatToInt64   = "to_int64"
+	FormatToFloat64 = "to_float64"
+	FormatToString  = "to_string"
+	FormatToBool    = "to_bool"
 
 	FormatCamelToSnake = "camel_to_snake"
 	FormatSnakeToCamel = "snake_to_camel"
 )
 
 var DefaultFormatDataOptions = []FormatOption{
-	FormatDataOption(FormatIntToString, FormatDataIntToString),
-	FormatDataOption(FormatFloatToString, FormatDataFloatToString),
-	FormatDataOption(FormatStringToInt, FormatDataStringToInt),
-	FormatDataOption(FormatStringToFloat, FormatDataStringToFloat),
+	FormatDataOption(FormatToInt64, FormatDataToInt64),
+	FormatDataOption(FormatToFloat64, FormatDataToFloat64),
+	FormatDataOption(FormatToString, FormatDataToString),
+	FormatDataOption(FormatToBool, FormatDataToBool),
 }
 
-func FormatDataIntToString(item interface{}) (interface{}, error) {
-	float64ID, ok := item.(float64)
-	if ok {
-		int64ID, err := ameda.Float64ToInt64(float64ID)
-		if err != nil {
-			return item, err
-		}
-		return ameda.Int64ToString(int64ID), nil
-	}
-	return item, nil
+func FormatDataToString(item interface{}) (interface{}, error) {
+	return cast.ToStringE(item)
 }
 
-func FormatDataFloatToString(item interface{}) (interface{}, error) {
-	float64ID, ok := item.(float64)
-	if ok {
-		return ameda.Float64ToString(float64ID), nil
-	}
-	return item, nil
+func FormatDataToInt64(item interface{}) (interface{}, error) {
+	return cast.ToInt64E(item)
 }
 
-func FormatDataStringToInt(item interface{}) (interface{}, error) {
-	str, ok := item.(string)
-	if !ok {
-		return item, nil
-	}
-	if str == "" {
-		return 0, nil
-	}
-	intValue, err := ameda.StringToInt64(str)
-	if err != nil {
-		return item, err
-	}
-	return intValue, nil
+func FormatDataToFloat64(item interface{}) (interface{}, error) {
+	return cast.ToFloat64E(item)
 }
 
-func FormatDataStringToFloat(item interface{}) (interface{}, error) {
-	str, ok := item.(string)
-	if !ok {
-		return item, nil
-	}
-	if str == "" {
-		return float64(0), nil
-	}
-	floatValue, err := ameda.StringToFloat64(str)
-	if err != nil {
-		return item, err
-	}
-	return floatValue, nil
+func FormatDataToBool(item interface{}) (interface{}, error) {
+	return cast.ToBoolE(item)
 }
 
 func FormatKeyCamelToSnake(item interface{}) (interface{}, error) {

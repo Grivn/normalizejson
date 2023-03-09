@@ -1,15 +1,15 @@
 {
   "data": {
-    "description": "int_to_string",
+    "description": "to_string",
     "id": "__template.id",
-    "rate": "string_to_float",
+    "rate": "to_float64",
     "sub_data_list": "__template.sub_data_list"
   },
-  "id": "int_to_string",
+  "id": "to_string",
   "sub_data": {
-    "item1": "string_to_int",
-    "item3": "float_to_string",
-    "item4": "string_to_float",
+    "item1": "to_int64",
+    "item3": "to_string",
+    "item4": "to_float64",
     "sub_data_list": "__template.sub_data_list"
   },
   "sub_data_list": [

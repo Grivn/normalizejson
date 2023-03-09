@@ -1,7 +1,7 @@
 module github.com/Grivn/gojson
 
 require (
-	github.com/andeya/ameda v1.5.3
+	github.com/spf13/cast v1.5.0
 	github.com/stretchr/testify v1.8.2
 )
 
