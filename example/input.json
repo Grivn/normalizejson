@@ -3,11 +3,11 @@
     "description": 1024,
     "id": "2",
     "rate": "2.3",
-    "sub_data_list": [
+    "subDataList": [
       {
         "item1": 12,
         "item2": "1.30",
-        "sub_data_list": [
+        "subDataList": [
           {
             "item1": "3",
             "item2": "1.70",

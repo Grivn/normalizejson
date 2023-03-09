@@ -54,6 +54,7 @@ func main() {
 	if err = os.WriteFile("output.json", buf.Bytes(), 0777); err != nil {
 		panic(err)
 	}
+	printJSON(source)
 }
 
 const (
@@ -64,7 +65,7 @@ var FormatKeyOptions = []normalizejson.FormatOption{
 	normalizejson.FormatKeyOption(FormatCamelToSnake, FormatKeyCamelToSnake),
 }
 
-var regexCamelCaseJSONKey = regexp.MustCompile(`\"(\w+)\":`)
+var regexCamelCaseJSONKey = regexp.MustCompile(`(\w)([A-Z])`) // camel-case style
 
 func FormatKeyCamelToSnake(item interface{}) (interface{}, error) {
 	str, ok := item.(string)

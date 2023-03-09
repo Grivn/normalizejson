@@ -154,7 +154,7 @@ For example, to normalize [input.json](example/input.json) towards [output.json]
 
 input.json
 
-    {"data":{"description":1024,"id":"2","rate":"2.3","sub_data_list":[{"item1":12,"item2":"1.30","sub_data_list":[{"item1":"3","item2":"1.70","item3":"2","item4":1.2,"item5":"exist","type":"child"}],"type":"parent"},{"item1":"2","item2":"1.40","item3":"3","item4":"1.2000","item5":"","type":"child"}]}}
+    {"data":{"description":1024,"id":"2","rate":"2.3","subDataList":[{"item1":12,"item2":"1.30","subDataList":[{"item1":"3","item2":"1.70","item3":"2","item4":1.2,"item5":"exist","type":"child"}],"type":"parent"},{"item1":"2","item2":"1.40","item3":"3","item4":"1.2000","item5":"","type":"child"}]}}
 
 output.json
 
@@ -201,6 +201,7 @@ In addition, the statement like `["{{function_name}}"]` is used to describe the 
 Each value in this array should be processed by function of `{{function_name}}`. 
 
     E.g. `{"sub_data_list":["__template.sub_data"]}` means the `sub_data_list` is an array of `sub_data`.
+    
     And we should process each value of it with the `sub_data` template. 
 
 To initiate the provider with `template`. 
@@ -362,7 +363,7 @@ func removeJSONBlankAndBreak(raw []byte) ([]byte, error) {
 
 input.json
 
-    {"data":{"description":1024,"id":"2","rate":"2.3","sub_data_list":[{"item1":12,"item2":"1.30","sub_data_list":[{"item1":"3","item2":"1.70","item3":"2","item4":1.2,"item5":"exist","type":"child"}],"type":"parent"},{"item1":"2","item2":"1.40","item3":"3","item4":"1.2000","item5":"","type":"child"}]}}
+    {"data":{"description":1024,"id":"2","rate":"2.3","subDataList":[{"item1":12,"item2":"1.30","subDataList":[{"item1":"3","item2":"1.70","item3":"2","item4":1.2,"item5":"exist","type":"child"}],"type":"parent"},{"item1":"2","item2":"1.40","item3":"3","item4":"1.2000","item5":"","type":"child"}]}}
 
 config.json
 
