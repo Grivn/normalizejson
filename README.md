@@ -168,9 +168,11 @@ For example, the `provider`'s options have been initiated according to example i
 input.json
 
 {"data":{"description":1024,"id":"2","rate":"2.3","subDataList":[{"item1":12,"item2":"1.30","subDataList":[{"item1":"3","item2":"1.70","item3":"2","item4":1.2,"item5":"exist","type":"child"}],"type":"parent"},{"item1":"2","item2":"1.40","item3":"3","item4":"1.2000","item5":"","type":"child"}]}}
+
 output.json
 
 {"data":{"description":"1024","id":"2","rate":2.3,"sub_data_list":[{"item1":12,"item2":"1.30","sub_data_list":[{"item1":3,"item2":"1.70","item3":"2","item4":1.2,"item5":"exist","type":"child"}],"type":"parent"},{"item1":2,"item2":"1.40","item3":"3","item4":1.2,"item5":"","type":"child"}]}}
+
 In our `template`, we have defined the function to be invoked for specific key's value.
 
 config.json
@@ -376,6 +378,7 @@ func removeJSONBlankAndBreak(raw []byte) ([]byte, error) {
 input.json
 
 {"data":{"description":1024,"id":"2","rate":"2.3","subDataList":[{"item1":12,"item2":"1.30","subDataList":[{"item1":"3","item2":"1.70","item3":"2","item4":1.2,"item5":"exist","type":"child"}],"type":"parent"},{"item1":"2","item2":"1.40","item3":"3","item4":"1.2000","item5":"","type":"child"}]}}
+
 config.json
 
 {"data":{"description":"to_string","id":"__template.id","rate":"to_float64","sub_data_list":"__template.sub_data_list"},"id":"to_string","sub_data":{"item1":"to_int64","item3":"to_string","item4":"to_float64","sub_data_list":"__template.sub_data_list"},"sub_data_list":["__template.sub_data"]}
