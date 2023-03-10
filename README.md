@@ -1,8 +1,8 @@
-# NormalizeJSON
+<h1 align="center">NormalizeJSON</h1>
 
-<a href="https://godoc.org/github.com/Grivn/normalizejson"><img src="https://img.shields.io/badge/api-reference-pink.svg?style=flat-square" alt="GoDoc"></a>
+<p align="center"><a align="center" href="https://godoc.org/github.com/Grivn/normalizejson"><img src="https://img.shields.io/badge/api-reference-pink.svg?style=flat-square" alt="GoDoc"></img></a></p>
 
-<img src="normalizejson.png" width=75%></img>
+<p align="center"><img align="center" src="normalizejson.png" width=75% border="0" alt="NormalizeJSON"></img></p>
 
 NormalizeJSON is a Go package that provides a simple way to normalize key-value pairs in a JSON document using a **template**.
 
