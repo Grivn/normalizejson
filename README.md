@@ -18,7 +18,7 @@ go version >= 1.18
 
 ### Create Provider
 
-To take use of NormalizeJSON, you should create a `FormatProvider`.
+To take use of NormalizeJSON, you should create a provider `FormatProvider`.
 
 ```go
 package main
@@ -81,7 +81,7 @@ You can create key-options and value-options using methods `normalizejson.Format
 
 Here's an example of how you might initiate a provider with options.
 
-- To create key-options.
+- To create key-options. (convert JSON keys from camel-case to snake-case)
 
 ```go
 var FormatKeyOptions = []normalizejson.FormatOption{
@@ -99,7 +99,7 @@ func FormatKeyCamelToSnake(item interface{}) (interface{}, error) {
 }
 ```
 
-- To create data-options.
+- To create data-options. (functions named 'to_string', 'to_int64', 'to_float64', 'to_bool' to normalize JSON values)
 
 ```go
 var FormatDataOptions = []normalizejson.FormatOption{
@@ -150,7 +150,15 @@ func main() {
 
 To normalize values in a JSON document, you should create a template to state the function to use.
 
-For example, to normalize [input.json](example/input.json) towards [output.json](example/output.json), you should create a template file [config.json](example/config.json). 
+- Attention Please
+
+	If you have initiated a provider with both key-option and data-option, we will normalize the key at first. 
+	
+	It means that we will take the normalized key to find the value to process and the `FormatFunc` to invoke. 
+	
+	So that, you should define the `template` with the expected key after the normalization. 
+
+For example, the `provider`'s options have been initiated according to example in the previous part. To normalize [input.json](example/input.json) to [output.json](example/output.json), you should create a template file [config.json](example/config.json). Here, we should convert the JSON key from camel-case to snake-case and format the values to the expected data type, such as `int64` to `string`. 
 
 input.json
 
@@ -159,6 +167,8 @@ input.json
 output.json
 
     {"data":{"description":"1024","id":"2","rate":2.3,"sub_data_list":[{"item1":12,"item2":"1.30","sub_data_list":[{"item1":3,"item2":"1.70","item3":"2","item4":1.2,"item5":"exist","type":"child"}],"type":"parent"},{"item1":2,"item2":"1.40","item3":"3","item4":1.2,"item5":"","type":"child"}]}}
+
+In our `template`, we have defined the function to be invoked for specific key's value. 
 
 config.json
 
@@ -195,12 +205,14 @@ There is a built-in function `__template.{{template_name}}`, which means process
 
     E.g. `{"sub_data":{"sub_data_list":"__template.sub_data_list"}}` 
     
-    It means the value of `sub_data.sub_data_list` should be processed by template `sub_data_list`.
+    It means the value of `sub_data.sub_data_list` should be processed by `sub_data_list` template.
 
 In addition, an array in a JSON document is described by the statement like `["{{function_name}}"]`.
 Each element in this array should be processed by the function `{{function_name}}`. 
 
-    E.g. `{"sub_data_list":["__template.sub_data"]}` means the `sub_data_list` is an array of `sub_data`.
+    E.g. `{"sub_data_list":["__template.sub_data"]}` means the `sub_data_list` is an array.
+    
+    Then, each value of the array should be processed by function called '__template.sub_data'.
     
     And we should process each element of the array using the `sub_data` template. 
 
@@ -233,7 +245,7 @@ func main() {
 
 ## Example
 
-The following shows a complete [example](example) about how to  use NormalizeJSON,  
+The following shows a complete [example](example) about how to use NormalizeJSON,  
 which takes [template](example/config.json) to convert from the [input.json](example/input.json) to the [output.json](example/output.json). 
 
 ```go
@@ -303,7 +315,7 @@ var FormatKeyOptions = []normalizejson.FormatOption{
 	normalizejson.FormatKeyOption(FormatCamelToSnake, FormatKeyCamelToSnake),
 }
 
-var regexCamelCaseJSONKey = regexp.MustCompile(`\"(\w+)\":`)
+var regexCamelCaseJSONKey = regexp.MustCompile(`(\w)([A-Z])`) // camel-case style
 
 func FormatKeyCamelToSnake(item interface{}) (interface{}, error) {
 	str, ok := item.(string)
