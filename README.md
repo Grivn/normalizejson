@@ -4,6 +4,8 @@
 
 <p align="center"><img align="center" src="normalizejson.png" width=75% border="0" alt="NormalizeJSON"></img></p>
 
+## Introduction
+
 NormalizeJSON is a Go package that provides a simple way to normalize key-value pairs in a JSON document using a **template**.
 
 This README is a quick overview of how to use NormalizeJSON.
