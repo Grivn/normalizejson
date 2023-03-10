@@ -2,7 +2,7 @@
 
 <a href="https://godoc.org/github.com/Grivn/normalizejson"><img src="https://img.shields.io/badge/api-reference-pink.svg?style=flat-square" alt="GoDoc"></a>
 
-NormalizeJSON is a Go package that provides a simple way to normalize the key/value in a JSON documents with a template.
+NormalizeJSON is a Go package that provides a simple way to normalize key-value pairs in a JSON document using a **template**.
 
 This README is a quick overview of how to use NormalizeJSON. 
 
@@ -43,7 +43,7 @@ Then, you should initiate the provider with `options` and `template`.
 
 #### Options
 
-The `options` will be used to normalize the key/value in JSON documents.
+The `options` are used to normalize key-value pairs in a JSON document.
 
 ```go
 package normalizejson
@@ -64,22 +64,22 @@ type FormatOption struct {
 }
 ```
 
-For each option, you should assign a `FormatFunc` in it.
-This function will be used to normalize the key or value in JSON documents.
+For each option, you should assign a `FormatFunc` to it.
+This function will be used to normalize the keys or values in a JSON document.
 
 There are two types of options in NormalizeJSON:
 - `normalizejson.FormatFuncFormatKey` (key-option)
 - `normalizejson.FormatFuncFormatData` (data-option)
 
 The key-options are used to normalize the JSON keys.
-Each key should be normalized by every `FormatFunc` created from key-options.
+Each key should be normalized by corresponding `FormatFunc` in the key-option.
 
 The data-options are used to normalize the JSON values.
-You should create a `template` to make statements about which function should be taken to normalize specific key's value. 
+You should create a `template` to assign the normalization methods to the values. 
 
-You can create key-options and value-options with methods `normalizejson.FormatKeyOption` and `normalizejson.FormatDataOption`.
+You can create key-options and value-options using methods `normalizejson.FormatKeyOption` and `normalizejson.FormatDataOption` accordingly.
 
-Here's an example to initiate provider with options.
+Here's an example of how you might initiate a provider with options.
 
 - To create key-options.
 
@@ -133,7 +133,7 @@ func FormatDataToBool(item interface{}) (interface{}, error) {
 }
 ```
 
-- To initiate provider. 
+- To initiate a provider. 
 
 ```go
 package main
@@ -148,7 +148,7 @@ func main() {
 
 #### Template
 
-To normalize the values in JSON document, you should create a template to state the function to use.
+To normalize values in a JSON document, you should create a template to state the function to use.
 
 For example, to normalize [input.json](example/input.json) towards [output.json](example/output.json), you should create a template file [config.json](example/config.json). 
 
@@ -183,26 +183,26 @@ config.json
 }
 ```
 
-This template file has defined 4 templates `data`, `id`, `sub_data`, and `sub_data_list`. 
+This template file defines 4 templates, namely `data`, `id`, `sub_data`, and `sub_data_list`. 
 
-The key-value in template show that the value in JSON document for current key should be processed by this format function.
+A key-value pair in a template file indicates the value of the corresponding key in the JSON document should be handled by the format function.
 
     E.g.`{"data":{"description":"to_string"}}` 
 
-    It means the value of `data.description` in JSON file should be processed by `FormatFunc` from data-options whose name is `to_string`.
+    It means the value of `data.description` in the JSON file should be processed by `to_string` which is a `FormatFunc` from data-options.
 
-There is a builtin style function name `__template.{{template_name}}`, which means we will process the value with template of `{{template_name}}`. 
+There is a built-in function `__template.{{template_name}}`, which means processing the value with the template `{{template_name}}`. 
 
     E.g. `{"sub_data":{"sub_data_list":"__template.sub_data_list"}}` 
     
     It means the value of `sub_data.sub_data_list` should be processed by template `sub_data_list`.
 
-In addition, the statement like `["{{function_name}}"]` is used to describe the array structure in JSON document.
-Each value in this array should be processed by function of `{{function_name}}`. 
+In addition, an array in a JSON document is described by the statement like `["{{function_name}}"]`.
+Each element in this array should be processed by the function `{{function_name}}`. 
 
     E.g. `{"sub_data_list":["__template.sub_data"]}` means the `sub_data_list` is an array of `sub_data`.
     
-    And we should process each value of it with the `sub_data` template. 
+    And we should process each element of the array using the `sub_data` template. 
 
 To initiate the provider with `template`. 
 
@@ -233,8 +233,8 @@ func main() {
 
 ## Example
 
-You can take the [example](example) for details to use NormalizeJSON. 
-It takes [template](example/config.json) to normalize the [input.json](example/input.json) to [output.json](example/output.json). 
+The following shows a complete [example](example) about how to  use NormalizeJSON,  
+which takes [template](example/config.json) to convert from the [input.json](example/input.json) to the [output.json](example/output.json). 
 
 ```go
 package main
