@@ -20,6 +20,7 @@ type FormatOption struct {
 	FunctionType   FormatFuncType
 	FunctionName   string
 	FormatFunction FormatFunc
+	RetainKey      bool
 }
 
 func FormatDataOption(funcName string, formatFunc FormatFunc) FormatOption {
