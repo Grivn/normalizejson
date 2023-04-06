@@ -15,6 +15,7 @@ func JSONSchemaFormat(data []byte, rawTemplate []byte, options ...FormatOption) 
 }
 
 type formatSchemaImpl struct {
+	retainKey   bool
 	formatKFunc map[string]FormatFunc
 	formatVFunc map[string]FormatFunc
 	templateMap map[string]interface{}
@@ -61,6 +62,7 @@ func (fsi *formatSchemaImpl) addOptions(options ...FormatOption) {
 	for _, option := range options {
 		if option.FunctionType == FormatFuncFormatKey {
 			fsi.formatKFunc[option.FunctionName] = option.FormatFunction
+			fsi.retainKey = option.RetainKey
 		} else {
 			// format_function_type_format_key
 			fsi.formatVFunc[option.FunctionName] = option.FormatFunction
@@ -155,7 +157,9 @@ func (fsi *formatSchemaImpl) formatItemMap(itemMap map[string]interface{}, templ
 		}
 
 		// update the item_map with the formatted JSON key and value.
-		delete(itemMap, key)
+		if !fsi.retainKey {
+			delete(itemMap, key)
+		}
 		itemMap[formattedKey] = formattedItem
 	}
 
